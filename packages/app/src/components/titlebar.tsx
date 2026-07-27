@@ -25,6 +25,9 @@ import { ServerConnection, useServer } from "@/context/server"
 import { tabKey, useTabs } from "@/context/tabs"
 import type { PromptSession } from "@/context/prompt"
 import "./titlebar.css"
+// HDS titlebar refinements. Imported unlayered, directly after titlebar.css,
+// because the tab background uses Tailwind utilities which outrank any @layer.
+import "@opencode-ai/ui/styles/hds-titlebar.css"
 import { normalizeSessionInfo } from "@/utils/session"
 
 type TauriDesktopWindow = {

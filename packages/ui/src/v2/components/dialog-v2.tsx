@@ -1,6 +1,10 @@
 import { Dialog as Kobalte } from "@kobalte/core/dialog"
 import { type ComponentProps, type JSXElement, type ParentProps, Show, children, splitProps } from "solid-js"
 import "./dialog-v2.css"
+// HDS overlay refinements. Imported here (unlayered, immediately after
+// dialog-v2.css) because unlayered declarations outrank any @layer, so a
+// layered override would silently lose. Blueprint 8.7.
+import "../../styles/hds-overlay.css"
 
 export interface DialogProps extends ParentProps {
   size?: "normal" | "large" | "x-large"

@@ -6,6 +6,7 @@ import { useMarked } from "@opencode-ai/ui/context/marked"
 import { FileIcon } from "@opencode-ai/ui/file-icon"
 import { IconButton } from "@opencode-ai/ui/icon-button"
 import { Icon } from "@opencode-ai/ui/v2/icon"
+import { HdsEmptyState, HdsErrorState, HdsLoadingState } from "@/components/hds-states"
 
 export function PreviewPanel(): JSX.Element {
   const layout = useLayout()
@@ -91,7 +92,7 @@ export function PreviewPanel(): JSX.Element {
       <div
         role="tablist"
         aria-label="Preview tabs"
-        class="flex items-center justify-between border-b border-border-base shrink-0 bg-background-base overflow-x-auto no-scrollbar"
+        class="hds-preview-tabbar flex items-center justify-between shrink-0 overflow-x-auto no-scrollbar"
       >
         <div class="flex items-center min-w-0 flex-1 overflow-x-auto no-scrollbar">
           <For each={openFiles()}>
@@ -102,14 +103,11 @@ export function PreviewPanel(): JSX.Element {
                 <div
                   role="tab"
                   aria-selected={isActive()}
-                  class="flex items-center gap-1.5 px-3 py-2 border-r border-border-base text-12-regular cursor-pointer transition-colors shrink-0 max-w-[180px]"
-                  classList={{
-                    "bg-background-base text-text-strong font-medium border-b-2 border-b-primary": isActive(),
-                    "bg-surface-base text-text-weak hover:bg-surface-raised-base": !isActive(),
-                  }}
+                  class="hds-preview-tab flex items-center cursor-pointer shrink-0 max-w-[180px]"
+                  classList={{ "hds-preview-tab--active": isActive() }}
                   onClick={() => layout.previewPanel.selectFile(file)}
                 >
-                  <FileIcon node={{ path: file, type: "file" }} class="w-3.5 h-3.5 shrink-0" />
+                  <FileIcon node={{ path: file, type: "file" }} class="shrink-0" style={{ width: "12px", height: "12px" }} />
                   <span class="truncate flex-1" title={file}>
                     {fileName}
                   </span>
@@ -122,7 +120,7 @@ export function PreviewPanel(): JSX.Element {
                     }}
                     aria-label={`Close ${fileName}`}
                   >
-                    <Icon name="close" class="w-3 h-3" />
+                    <Icon name="close" style={{ width: "10px", height: "10px" }} />
                   </button>
                 </div>
               )
@@ -146,7 +144,7 @@ export function PreviewPanel(): JSX.Element {
         ref={contentRef}
         role="tabpanel"
         aria-label="File content preview"
-        class="flex-1 min-h-0 overflow-y-auto p-4 select-text"
+        class="hds-preview-content flex-1 min-h-0 overflow-y-auto p-4 select-text"
         onScroll={(e) => {
           const file = activeFile()
           if (file) setScrollPositions(file, e.currentTarget.scrollTop)
@@ -222,46 +220,23 @@ export function PreviewPanel(): JSX.Element {
   )
 }
 
+// Delegated to the shared HDS state contract (Blueprint 8.17).
+// Copy and call sites are unchanged; only the visual treatment is unified.
 function EmptyState(props: { message: string }): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-center text-text-weak">
-      <Icon name="file" class="w-8 h-8 mb-2 opacity-50" />
-      <span class="text-12-regular">{props.message}</span>
-    </div>
-  )
+  return <HdsEmptyState icon="file-tree" title={props.message} />
 }
 
 function LoadingState(): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-text-weak gap-2">
-      <Icon name="spinner" class="w-5 h-5 animate-spin opacity-70" />
-      <span class="text-12-regular">Loading preview...</span>
-    </div>
-  )
+  return <HdsLoadingState label="Loading preview..." />
 }
 
 function ErrorState(props: { message: string; onRetry: () => void }): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-center text-text-weak gap-2">
-      <span class="text-12-regular text-syntax-critical">{props.message}</span>
-      <button
-        type="button"
-        class="px-2 py-1 bg-surface-base rounded-md hover:bg-surface-raised-base text-12-medium text-text-strong transition-colors cursor-pointer"
-        onClick={props.onRetry}
-      >
-        Retry
-      </button>
-    </div>
-  )
+  return <HdsErrorState message={props.message} onRetry={props.onRetry} />
 }
 
 function UnsupportedState(props: { path: string }): JSX.Element {
   return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-center text-text-weak gap-2">
-      <Icon name="file" class="w-8 h-8 opacity-50" />
-      <span class="text-12-medium text-text-strong">Binary or unsupported file format</span>
-      <span class="text-12-regular text-text-weak truncate max-w-md">{props.path}</span>
-    </div>
+    <HdsEmptyState icon="file-tree" title="Binary or unsupported file format" description={props.path} />
   )
 }
 

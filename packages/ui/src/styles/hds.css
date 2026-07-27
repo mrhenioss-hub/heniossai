@@ -1,13 +1,34 @@
 /**
  * HDS — HeniossAI Design System
- * AI-First token layer | Zero runtime modification | Visual reconstruction only
- * Compliant with Non-Negotiable Architectural Contract
- * Extends existing theme.css with new Presentation-layer domains, existing domains untouched per I-BACKWARD
- * All tokens achievable via layout, visual hierarchy, spacing, design system, component styling, motion, typography, color, icons, IA, workspace organization
+ * Token layer | Zero runtime modification | Visual reconstruction only
+ *
+ * Compliant with the Non-Negotiable Architectural Contract:
+ *   {I-RUNTIME} {I-SESSION} {I-SESSION-FILES} {I-CATEGORY-A} {I-NO-DEPS} {I-BACKWARD}
+ *
+ * THEME COMPATIBILITY CONTRACT
+ * ----------------------------
+ * Colour tokens DERIVE from the existing `--v2-*` design tokens rather than
+ * hard-coding hex values. This is mandatory, not stylistic:
+ *
+ *   ThemeProvider (packages/ui/src/theme/context.tsx) injects a `:root { ... }`
+ *   stylesheet at runtime that redefines the `--v2-*` variables for the active
+ *   theme (35 themes x 13 scale families). Any token that hard-codes hex would
+ *   ignore the active theme entirely and permanently break theme switching.
+ *
+ * Every colour token below therefore uses:  var(--v2-source, <fallback hex>)
+ * The fallback is the Blueprint's canonical value and is used only when the
+ * `--v2-*` token is unavailable. This satisfies Blueprint V-15 ("HDS token
+ * layer OVER, not INSTEAD OF, --v2-*") and Validation Package §6.5 item 4.
+ *
+ * Non-colour tokens (spacing, radius, motion, layout metrics, type scale) are
+ * absolute by design — they are geometry and timing, not theme surface.
  */
 
 :root {
-  /* === Spacing 4px base (existing --spacing 0.25rem preserved) === */
+  /* ==========================================================================
+     SPACING — 4px base grid (Blueprint §11.2)
+     Absolute values. Forbidden: 3, 5, 7, 9, 10, 11, 13, 14, 15px.
+     ========================================================================== */
   --hds-spacing-0: 0;
   --hds-spacing-0-5: 2px;
   --hds-spacing-1: 4px;
@@ -21,164 +42,196 @@
   --hds-spacing-10: 40px;
   --hds-spacing-12: 48px;
 
-  /* === Radius === */
-  --hds-radius-4: 4px;   /* tree nodes, menu items */
-  --hds-radius-6: 6px;   /* buttons, inputs */
-  --hds-radius-8: 8px;   /* panels, cards, docks */
-  --hds-radius-12: 12px; /* dialogs, popovers */
-  --hds-radius-full: 9999px; /* pills, badges */
+  /* ==========================================================================
+     RADIUS — encodes category, not size (Blueprint §11.3)
+     ========================================================================== */
+  --hds-radius-4: 4px; /* functional: tree rows, menu items, kind badges */
+  --hds-radius-6: 6px; /* interactive: buttons, inputs, tabs, icon buttons */
+  --hds-radius-8: 8px; /* container: cards, docks, popovers */
+  --hds-radius-12: 12px; /* overlay: dialogs, command palette, composer */
+  --hds-radius-full: 9999px; /* pill: chips, badges, status dots, active bar */
 
-  /* === Motion === */
-  --hds-motion-fast: 120ms;
-  --hds-motion-normal: 160ms;
-  --hds-motion-slow: 180ms;
-  --hds-motion-panel: 240ms;
+  /* ==========================================================================
+     MOTION (Blueprint §11.6)
+     ========================================================================== */
+  --hds-motion-fast: 120ms; /* hover, opacity, tooltip, focus ring */
+  --hds-motion-normal: 160ms; /* chevron, micro-interactions, tab close */
+  --hds-motion-slow: 180ms; /* dialog fade+scale, menu fade */
+  --hds-motion-panel: 240ms; /* SIGNATURE: panel width/height, dock slide */
+
   --hds-ease-default: ease-out;
-  --hds-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+  --hds-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1); /* signature curve */
   --hds-ease-spring: linear(
-    0, 0.002, 0.01 0.9%, 0.038 1.8%, 0.156 3.6%, 0.312 5.3%, 0.654 8.2%, 0.862 9.9%,
-    1.01 11.8%, 1.098 13.7%, 1.149 15.6%, 1.17 17.4%, 1.166 19.4%, 1.117 22.8%, 0.954 29.1%,
-    0.907 32%, 0.876 34.8%, 0.865 37.6%, 0.871 40.6%, 0.905 43.7%, 1.05 51.2%, 1.095 55.6%,
-    1.099 60.2%, 1.066 66.2%, 0.982 80.6%, 1
+    0,
+    0.002,
+    0.01 0.9%,
+    0.038 1.8%,
+    0.156 3.6%,
+    0.312 5.3%,
+    0.654 8.2%,
+    0.862 9.9%,
+    1.01 11.8%,
+    1.098 13.7%,
+    1.149 15.6%,
+    1.17 17.4%,
+    1.166 19.4%,
+    1.117 22.8%,
+    0.954 29.1%,
+    0.907 32%,
+    0.876 34.8%,
+    0.865 37.6%,
+    0.871 40.6%,
+    0.905 43.7%,
+    1.05 51.2%,
+    1.095 55.6%,
+    1.099 60.2%,
+    1.066 66.2%,
+    0.982 80.6%,
+    1
   );
 
-  /* === AI-First Weights (visual hierarchy only) === */
-  --hds-weight-primary: 530;   /* session titles, review tabs, composer actions */
-  --hds-weight-secondary: 440; /* file tree names, preview filenames */
-  --hds-font-size-primary: 14px; /* timeline messages */
-  --hds-font-size-secondary: 13px; /* file tree, preview */
-  --hds-font-size-tertiary: 12px; /* metadata, time, secondary tabs */
-  --hds-font-size-micro: 11px; /* uppercase labels RECENT TODAY */
+  /* ==========================================================================
+     TYPOGRAPHY SCALE (Blueprint §11.5)
+     Seven UI steps, three mono steps. No other sizes may exist.
+     ========================================================================== */
+  --hds-font-ui: var(--font-family-text, "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif);
+  --hds-font-mono: var(--font-family-mono, "JetBrainsMono Nerd Font Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
 
-  /* === Backgrounds Dark | Light — Stone matte, no pure black/white === */
-  --hds-bg-deep-dark: #121214;
-  --hds-bg-deep-light: #F8F8F5;
-  --hds-bg-base-dark: #18181B;
-  --hds-bg-base-light: #FCFCFB;
-  --hds-bg-layer-01-dark: #1F1F22;
-  --hds-bg-layer-01-light: #FFFFFF;
-  --hds-bg-layer-02-dark: #262629;
-  --hds-bg-layer-02-light: #F3F3F1;
-  --hds-bg-layer-03-dark: #2E2E31;
-  --hds-bg-layer-03-light: #EBEBE8;
-  --hds-bg-overlay-dark: rgba(24, 24, 27, 0.6);
-  --hds-bg-overlay-light: rgba(252, 252, 251, 0.7);
+  --hds-size-11: 11px;
+  --hds-line-11: 14px;
+  --hds-size-12: 12px;
+  --hds-line-12: 16px;
+  --hds-size-13: 13px;
+  --hds-line-13: 18px;
+  --hds-size-14: 14px;
+  --hds-line-14: 20px;
+  --hds-size-16: 16px;
+  --hds-line-16: 24px;
 
-  /* Semantic mapping via light-dark() */
-  --hds-bg-deep: light-dark(var(--hds-bg-deep-light), var(--hds-bg-deep-dark));
-  --hds-bg-base: light-dark(var(--hds-bg-base-light), var(--hds-bg-base-dark));
-  --hds-bg-layer-01: light-dark(var(--hds-bg-layer-01-light), var(--hds-bg-layer-01-dark));
-  --hds-bg-layer-02: light-dark(var(--hds-bg-layer-02-light), var(--hds-bg-layer-02-dark));
-  --hds-bg-layer-03: light-dark(var(--hds-bg-layer-03-light), var(--hds-bg-layer-03-dark));
+  /* Mission timeline content — the only 180% in the product (Blueprint §5.2) */
+  --hds-line-timeline: 180%;
 
-  /* === Text === */
-  --hds-text-strong-dark: #F4F4F3;
-  --hds-text-strong-light: #171717;
-  --hds-text-base-dark: #CBCBC8;
-  --hds-text-base-light: #3A3A38;
-  --hds-text-muted-dark: #8A8A87;
-  --hds-text-muted-light: #6F6F6C;
-  --hds-text-faint-dark: #5E5E5B;
-  --hds-text-faint-light: #9A9A96;
-  --hds-text-weak-dark: #3E3E3B;
-  --hds-text-weak-light: #C7C7C3;
+  --hds-weight-regular: 440;
+  --hds-weight-medium: 530;
+  --hds-weight-label: 600;
 
-  --hds-text-strong: light-dark(var(--hds-text-strong-light), var(--hds-text-strong-dark));
-  --hds-text-base: light-dark(var(--hds-text-base-light), var(--hds-text-base-dark));
-  --hds-text-muted: light-dark(var(--hds-text-muted-light), var(--hds-text-muted-dark));
-  --hds-text-faint: light-dark(var(--hds-text-faint-light), var(--hds-text-faint-dark));
-  --hds-text-weak: light-dark(var(--hds-text-weak-light), var(--hds-text-weak-dark));
+  --hds-tracking-normal: 0;
+  --hds-tracking-tight: -0.16px; /* 16px+ */
+  --hds-tracking-label: 0.6px; /* 11px uppercase */
 
-  /* === Borders === */
-  --hds-border-base-dark: #2A2A2D;
-  --hds-border-base-light: #E8E8E5;
-  --hds-border-strong-dark: #3A3A3D;
-  --hds-border-strong-light: #D4D4D1;
-  --hds-border-weak-dark: #232326;
-  --hds-border-weak-light: #EDEDEA;
+  /* Hierarchy aliases (Blueprint §3.8) */
+  --hds-weight-primary: var(--hds-weight-medium);
+  --hds-weight-secondary: var(--hds-weight-regular);
+  --hds-font-size-primary: var(--hds-size-14); /* mission content */
+  --hds-font-size-secondary: var(--hds-size-13); /* file tree */
+  --hds-font-size-tertiary: var(--hds-size-12); /* preview, metadata */
+  --hds-font-size-micro: var(--hds-size-11); /* group labels */
 
-  --hds-border-base: light-dark(var(--hds-border-base-light), var(--hds-border-base-dark));
-  --hds-border-strong: light-dark(var(--hds-border-strong-light), var(--hds-border-strong-dark));
-  --hds-border-weak: light-dark(var(--hds-border-weak-light), var(--hds-border-weak-dark));
-  --hds-border-focus: #2A5FFF; /* Henioss Cobalt — sole accent */
+  /* ==========================================================================
+     ROW HEIGHTS (Blueprint §11.9)
+     The 28px pulse. Never 30, never 35.
+     ========================================================================== */
+  --hds-row-compact: 24px; /* small icon button, chip */
+  --hds-row-dense: 28px; /* tree row, session row, menu item, tab */
+  --hds-row-base: 32px; /* input, button, toolbar, section header */
+  --hds-row-comfort: 36px; /* titlebar, tab strip, panel header */
+  --hds-row-header: 48px; /* dialog header/footer, palette search */
 
-  /* === Interactive — Henioss Cobalt #2A5FFF === */
-  --hds-interactive-base: #2A5FFF;
-  --hds-interactive-hover: #1F4DE8;
-  --hds-interactive-active: #1A42C7;
-  --hds-interactive-faint-dark: rgba(42, 95, 255, 0.12);
-  --hds-interactive-faint-light: rgba(42, 95, 255, 0.08);
-  --hds-interactive-faint: light-dark(var(--hds-interactive-faint-light), var(--hds-interactive-faint-dark));
-  --hds-interactive-weak-dark: rgba(42, 95, 255, 0.08);
-  --hds-interactive-weak-light: rgba(42, 95, 255, 0.05);
-  --hds-interactive-weak: light-dark(var(--hds-interactive-weak-light), var(--hds-interactive-weak-dark));
+  /* ==========================================================================
+     BACKGROUNDS — derived from --v2-* (Blueprint §4.2, §4.6)
+     Fallbacks are the canonical Precision Surface values.
+     ========================================================================== */
+  --hds-bg-deep: var(--v2-background-bg-deep, light-dark(#f8f8f5, #121214));
+  --hds-bg-base: var(--v2-background-bg-base, light-dark(#fcfcfb, #18181b));
+  --hds-bg-layer-01: var(--v2-background-bg-layer-01, light-dark(#ffffff, #1f1f22));
+  --hds-bg-layer-02: var(--v2-background-bg-layer-02, light-dark(#f3f3f1, #262629));
+  --hds-bg-layer-03: var(--v2-background-bg-layer-03, light-dark(#ebebe8, #2e2e31));
+  --hds-bg-overlay: var(--v2-overlay-simple-overlay-scrim, light-dark(rgba(252, 252, 251, 0.7), rgba(24, 24, 27, 0.6)));
 
-  /* === Semantic === */
-  --hds-success: light-dark(#17872D, #3ECF4A);
-  --hds-warning: light-dark(#A66A00, #F5B83A);
-  --hds-critical: light-dark(#C81E1E, #FF4D4D);
-  --hds-info: light-dark(#0F6ECD, #4DA6FF);
+  /* ==========================================================================
+     TEXT — derived from --v2-* (Blueprint §4.2)
+     Two reading steps (strong, base); the rest are for recession.
+     ========================================================================== */
+  --hds-text-strong: var(--v2-text-text-base, light-dark(#171717, #f4f4f3));
+  --hds-text-base: var(--v2-text-text-base, light-dark(#3a3a38, #cbcbc8));
+  --hds-text-muted: var(--v2-text-text-muted, light-dark(#6f6f6c, #8a8a87));
+  --hds-text-faint: var(--v2-text-text-faint, light-dark(#9a9a96, #5e5e5b));
+  --hds-text-weak: var(--v2-text-text-faint, light-dark(#c7c7c3, #3e3e3b));
 
-  --hds-diff-add-bg-dark: #153D1F;
-  --hds-diff-add-bg-light: #E3F9E5;
-  --hds-diff-add-border: #2A7A3A;
-  --hds-diff-add-text-dark: #3ECF4A;
-  --hds-diff-add-text-light: #17872D;
+  /* ==========================================================================
+     BORDERS — derived from --v2-* (Blueprint §3.3)
+     ========================================================================== */
+  --hds-border-base: var(--v2-border-border-base, light-dark(#e8e8e5, #2a2a2d));
+  --hds-border-strong: var(--v2-border-border-strong, light-dark(#d4d4d1, #3a3a3d));
+  --hds-border-weak: var(--v2-border-border-muted, light-dark(#ededea, #232326));
+  --hds-border-focus: var(--v2-border-border-focus, #2a5fff);
 
-  --hds-diff-del-bg-dark: #4A1515;
-  --hds-diff-del-bg-light: #FCE8E6;
-  --hds-diff-del-border: #8A2A2A;
-  --hds-diff-del-text-dark: #FF8A8A;
-  --hds-diff-del-text-light: #C81E1E;
+  /* ==========================================================================
+     INTERACTIVE — Henioss Cobalt (Blueprint §4.3)
+     The sole accent. Derived so themed accents are honoured.
+     ========================================================================== */
+  --hds-interactive-base: var(--v2-background-bg-accent, #2a5fff);
+  --hds-interactive-hover: var(--v2-text-text-accent-hover, #1f4de8);
+  --hds-interactive-active: var(--v2-text-text-accent-hover, #1a42c7);
+  /*
+   * Selection tints. Derived from the accent via color-mix() so a themed accent
+   * tints correctly instead of staying cobalt. There is no --v2-* equivalent
+   * for these two, which is why they are composed rather than mapped.
+   * Blueprint 4.3 weight ladder: a selected MISSION uses `faint` (stronger),
+   * a selected FILE uses `weak`.
+   */
+  --hds-interactive-faint: color-mix(in srgb, var(--hds-interactive-base) 12%, transparent);
+  --hds-interactive-weak: color-mix(in srgb, var(--hds-interactive-base) 8%, transparent);
 
-  --hds-diff-mod-bg-dark: #4A3A15;
-  --hds-diff-mod-bg-light: #FEF3C7;
-  --hds-diff-mod-border: #8A6A2A;
-  --hds-diff-mod-text-dark: #F5B83A;
-  --hds-diff-mod-text-light: #A66A00;
+  /* ==========================================================================
+     SEMANTIC (Blueprint §4.5)
+     Each carries a mandatory redundant non-colour signal at the component level.
+     ========================================================================== */
+  --hds-success: var(--v2-state-fg-success, light-dark(#17872d, #3ecf4a));
+  --hds-warning: var(--v2-state-fg-warning, light-dark(#a66a00, #f5b83a));
+  --hds-critical: var(--v2-state-fg-danger, light-dark(#c81e1e, #ff4d4d));
+  --hds-info: var(--v2-state-fg-info, light-dark(#0f6ecd, #4da6ff));
 
-  /* === Avatar Palette Desaturated Professional (6) === */
-  --hds-avatar-pink-bg-dark: #2A1F26;
-  --hds-avatar-pink-text-dark: #E8A8C8;
-  --hds-avatar-pink-bg-light: #FDF0F6;
-  --hds-avatar-pink-text-light: #B01A6B;
+  --hds-success-bg: var(--v2-state-bg-success, light-dark(#e3f9e5, #153d1f));
+  --hds-warning-bg: var(--v2-state-bg-warning, light-dark(#fef3c7, #4a3a15));
+  --hds-critical-bg: var(--v2-state-bg-danger, light-dark(#fce8e6, #4a1515));
+  --hds-info-bg: var(--v2-state-bg-info, light-dark(#e6f8fb, #153d4a));
 
-  --hds-avatar-mint-bg-dark: #1F2624;
-  --hds-avatar-mint-text-dark: #8ED8C3;
-  --hds-avatar-mint-bg-light: #E6FBF3;
-  --hds-avatar-mint-text-light: #147D6F;
+  --hds-success-border: var(--v2-state-border-success, #2a7a3a);
+  --hds-warning-border: var(--v2-state-border-warning, #8a6a2a);
+  --hds-critical-border: var(--v2-state-border-danger, #8a2a2a);
+  --hds-info-border: var(--v2-state-border-info, #2a5a8a);
 
-  --hds-avatar-orange-bg-dark: #29221F;
-  --hds-avatar-orange-text-dark: #E3A070;
-  --hds-avatar-orange-bg-light: #FEF3EB;
-  --hds-avatar-orange-text-light: #C05300;
+  /* Diff — Review panel and timeline diff blocks only (Blueprint §4.5) */
+  --hds-diff-add-bg: light-dark(#e3f9e5, #153d1f);
+  --hds-diff-add-text: var(--text-diff-add-base, light-dark(#17872d, #3ecf4a));
+  --hds-diff-del-bg: light-dark(#fce8e6, #4a1515);
+  --hds-diff-del-text: var(--text-diff-delete-base, light-dark(#c81e1e, #ff8a8a));
+  --hds-diff-mod-bg: light-dark(#fef3c7, #4a3a15);
+  --hds-diff-mod-text: light-dark(#a66a00, #f5b83a);
 
-  --hds-avatar-purple-bg-dark: #25212A;
-  --hds-avatar-purple-text-dark: #C2A8E8;
-  --hds-avatar-purple-bg-light: #F5F0FD;
-  --hds-avatar-purple-text-light: #8445BC;
+  /* ==========================================================================
+     ELEVATION — aliases over the existing theme.css shadow scale
+     (Blueprint §11.4). Never redefined here; only referenced.
+     ========================================================================== */
+  --hds-elevation-0: none;
+  --hds-elevation-1: var(--shadow-xs);
+  --hds-elevation-2: var(--shadow-md);
+  --hds-elevation-3: var(--shadow-lg);
+  --hds-elevation-4: var(--shadow-lg);
 
-  --hds-avatar-cyan-bg-dark: #1F2628;
-  --hds-avatar-cyan-text-dark: #8ACED8;
-  --hds-avatar-cyan-bg-light: #E6F8FB;
-  --hds-avatar-cyan-text-light: #0A7A8A;
-
-  --hds-avatar-lime-bg-dark: #232A1F;
-  --hds-avatar-lime-text-dark: #A8C86A;
-  --hds-avatar-lime-bg-light: #EFF8E3;
-  --hds-avatar-lime-text-light: #5D770D;
-
-  /* === Layout Metrics AI-First === */
+  /* ==========================================================================
+     LAYOUT METRICS (Blueprint §11.8)
+     Every clamp mirrors the EXISTING runtime clamp. Only defaults differ.
+     ========================================================================== */
   --hds-activity-bar-width: 48px;
-  --hds-sidebar-width: 240px; /* AI-first narrower than old 280 to give more to timeline */
+  --hds-sidebar-width: 240px; /* runtime clamp 200-600, unchanged */
   --hds-sidebar-min: 200px;
   --hds-sidebar-max: 600px;
-  --hds-main-min: 600px; /* timeline primary larger */
-  --hds-auxiliary-width: 360px; /* Review/Context primary 360 vs old Preview 420, smaller but primary weight via typography */
+  --hds-auxiliary-width: 360px; /* runtime clamp 200-800, unchanged */
   --hds-auxiliary-min: 200px;
-  --hds-auxiliary-max: 600px;
-  --hds-preview-secondary-width: 360px; /* file preview secondary muted */
-  --hds-terminal-height: 200px;
+  --hds-auxiliary-max: 800px;
+  --hds-terminal-height: 200px; /* runtime clamp 100px-60vh, unchanged */
   --hds-terminal-min: 100px;
   --hds-terminal-max: 60vh;
   --hds-titlebar-height: 36px;
@@ -186,203 +239,17 @@
   --hds-resize-handle: 4px;
   --hds-resize-hit: 12px;
 
-  /* === AI vs File Weighting === */
-  --hds-timeline-gap: 12px; /* breathing for AI messages */
-  --hds-file-tree-gap: 0px; /* dense file tree secondary */
-  --hds-session-title-size: 14px;
-  --hds-session-title-weight: 530;
-  --hds-file-name-size: 13px;
-  --hds-file-name-weight: 440;
-  --hds-file-name-color: var(--hds-text-muted); /* secondary muted */
-  --hds-session-name-color: var(--hds-text-base); /* primary base */
-}
+  /* Reading measures (Blueprint §5.5) */
+  --hds-timeline-measure: 72ch;
+  --hds-prose-measure: 68ch;
 
-/* Dark mode overrides via prefers-color-scheme — ThemeProvider also handles but CSS fallback */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-  }
-}
-@media (prefers-color-scheme: light) {
-  :root {
-    color-scheme: light;
-  }
-}
-
-/* === HDS Component Primitives — Presentation Layer only, no runtime === */
-
-/* Activity Bar — 48px fixed AI modes first */
-[data-component="hds-activity-bar"] {
-  width: var(--hds-activity-bar-width);
-  min-width: var(--hds-activity-bar-width);
-  background: var(--hds-bg-deep);
-  border-right: 1px solid var(--hds-border-base);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: var(--hds-spacing-2) 0;
-  gap: var(--hds-spacing-2);
-  user-select: none;
-}
-
-[data-component="hds-activity-bar"] [data-slot="top-group"] {
-  display: flex;
-  flex-direction: column;
-  gap: var(--hds-spacing-1);
-  flex: 1;
-}
-
-[data-component="hds-activity-bar"] [data-slot="bottom-group"] {
-  display: flex;
-  flex-direction: column;
-  gap: var(--hds-spacing-1);
-}
-
-[data-component="hds-activity-item"] {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--hds-radius-6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--hds-text-muted);
-  cursor: pointer;
-  position: relative;
-  transition: background var(--hds-motion-fast) var(--hds-ease-default),
-              color var(--hds-motion-fast) var(--hds-ease-default);
-}
-
-[data-component="hds-activity-item"]:hover {
-  background: var(--hds-bg-layer-02);
-  color: var(--hds-text-base);
-}
-
-[data-component="hds-activity-item"][data-active="true"] {
-  background: var(--hds-bg-layer-03);
-  color: var(--hds-text-strong);
-}
-
-[data-component="hds-activity-item"][data-active="true"]::before {
-  content: "";
-  position: absolute;
-  left: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 16px;
-  background: var(--hds-interactive-base);
-  border-radius: var(--hds-radius-full);
-}
-
-/* AI-First: Sessions first visually heavier */
-[data-component="hds-activity-item"][data-kind="sessions"] {
-  /* sessions icon gets primary weight */
-}
-
-/* Sidebar — 240px AI-first Sessions first Projects second muted */
-[data-component="hds-sidebar"] {
-  width: var(--hds-sidebar-width);
-  min-width: var(--hds-sidebar-min);
-  max-width: var(--hds-sidebar-max);
-  background: var(--hds-bg-base);
-  border-right: 1px solid var(--hds-border-base);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* Timeline AI primary gap 12 */
-[data-component="session-timeline-ai"] {
-  gap: var(--hds-timeline-gap);
-}
-
-/* File tree secondary muted */
-[data-component="file-tree-secondary"] [data-slot="file-tree-v2-row"] {
-  color: var(--hds-file-name-color);
-  font-size: var(--hds-file-name-size);
-  font-weight: var(--hds-file-name-weight);
-}
-
-[data-component="file-tree-secondary"] [data-slot="file-tree-v2-row"]:hover {
-  color: var(--hds-text-base);
-  background: var(--hds-bg-layer-02);
-}
-
-/* Sessions primary heavier */
-[data-component="sessions-primary"] [data-slot="session-item-title"] {
-  font-size: var(--hds-session-title-size);
-  font-weight: var(--hds-session-title-weight);
-  color: var(--hds-session-name-color);
-}
-
-/* Composer elevated primary input of entire app */
-[data-component="hds-composer"] {
-  background: var(--hds-bg-layer-01);
-  border: 1px solid var(--hds-border-base);
-  border-radius: var(--hds-radius-12);
-  box-shadow: var(--shadow-xs-border-base);
-  transition: border-color var(--hds-motion-fast) var(--hds-ease-default),
-              box-shadow var(--hds-motion-fast) var(--hds-ease-default);
-}
-
-[data-component="hds-composer"]:focus-within {
-  border-color: var(--hds-border-focus);
-  box-shadow: var(--shadow-xs-border-focus);
-}
-
-/* Context chips explicit high contrast interactive-faint border interactive-weak */
-[data-slot="context-chip"] {
-  background: var(--hds-interactive-faint);
-  border: 1px solid var(--hds-interactive-weak);
-  border-radius: var(--hds-radius-full);
-  padding: 2px 8px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--hds-text-base);
-}
-
-/* Docks elevated bg-layer-01 border base rounded 8 shadow-xs */
-[data-component="hds-dock"] {
-  background: var(--hds-bg-layer-01);
-  border: 1px solid var(--hds-border-base);
-  border-radius: var(--hds-radius-8);
-  box-shadow: var(--shadow-xs);
-  padding: 12px;
-}
-
-/* Review tab primary 14 medium vs Preview secondary 12 muted */
-[data-slot="review-tab-trigger"] {
-  font-size: 14px;
-  font-weight: 530;
-  color: var(--hds-text-base);
-}
-
-[data-slot="preview-tab-trigger-secondary"] {
-  font-size: 12px;
-  font-weight: 440;
-  color: var(--hds-text-muted);
-}
-
-/* Preview content secondary muted opacity 90% vs Review 100% */
-[data-component="preview-secondary"] {
-  opacity: 0.9;
-}
-
-[data-component="review-primary"] {
-  opacity: 1;
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  [data-component="hds-activity-bar"],
-  [data-component="hds-sidebar"],
-  [data-component="hds-composer"],
-  [data-slot="context-chip"] {
-    transition: none !important;
-    animation: none !important;
-  }
+  /* ==========================================================================
+     WHITESPACE GRADIENT (Blueprint §3.6)
+     12 -> 8 -> 4 -> 2 -> 0. This gradient IS the hierarchy.
+     ========================================================================== */
+  --hds-gap-timeline: 12px; /* mission turns */
+  --hds-gap-dock: 8px; /* docks */
+  --hds-gap-review: 4px; /* review rows */
+  --hds-gap-session: 2px; /* mission rows */
+  --hds-gap-tree: 0px; /* file tree rows */
 }

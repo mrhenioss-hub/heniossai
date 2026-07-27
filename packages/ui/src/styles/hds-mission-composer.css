@@ -1,0 +1,59 @@
+/**
+ * HDS — Composer elevation (Blueprint §8.12, §10; Phase F)
+ *
+ * SEPARATE FILE FOR A CASCADE REASON, NOT A STYLISTIC ONE.
+ * The composer is styled with Tailwind utility classes on the element itself
+ * (prompt-input/index.tsx:109 — `rounded-xl bg-v2-background-bg-base` plus
+ * `shadow-[var(--v2-elevation-raised)]`). Tailwind utilities live in the
+ * `utilities` cascade layer, which outranks `components` regardless of source
+ * order. A rule placed in `components` would therefore be silently ignored.
+ * This file is imported into `utilities` so it competes on equal footing and
+ * wins by source order. Do not fold it into hds-mission.css.
+ *
+ * BOUNDARY: targets only [data-component="prompt-input-v2"], an attribute that
+ * already exists in the rendered DOM. No edits to session-ui .tsx files, no new
+ * nodes, no runtime involvement {I-SESSION} {I-RUNTIME} {I-BACKWARD}.
+ *
+ * WHY THE COMPOSER IS THE MOST ELEVATED OBJECT IN THE PRODUCT (§10, DD-2):
+ * it states that intent-input is the centre of the application, not a footer
+ * attached to an editor. It is the only surface at radius 12 whose border lifts
+ * to cobalt on focus. This is AI presence expressed through elevation rather
+ * than through personification — no avatar, no bubble, no mascot.
+ */
+
+@layer utilities {
+  [data-component="prompt-input-v2"] {
+    /* Blueprint §11.3: 12 = "overlay / major surface". Tailwind's rounded-xl is
+       10px, which reads as an ordinary interactive element. */
+    border-radius: var(--hds-radius-12);
+
+    /* Blueprint §3.2: an Object is bg-layer-01 + 1px border-base + shadow-xs. */
+    border: 1px solid var(--hds-border-base);
+
+    transition:
+      border-color var(--hds-motion-fast) var(--hds-ease-default),
+      box-shadow var(--hds-motion-fast) var(--hds-ease-default);
+  }
+
+  /*
+   * Focus lifts the border to cobalt. Uses :focus-within so it responds to the
+   * contenteditable inside, with no JS and no new handler.
+   */
+  [data-component="prompt-input-v2"]:focus-within {
+    border-color: var(--hds-border-focus);
+  }
+
+  /*
+   * The drag-active state already sets its own dashed info border in the
+   * component; do not fight it.
+   */
+  [data-component="prompt-input-v2"][data-drag="active"] {
+    border-style: dashed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-component="prompt-input-v2"] {
+      transition: none;
+    }
+  }
+}

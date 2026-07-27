@@ -1,0 +1,106 @@
+/**
+ * HDS — Explorer / file tree (Blueprint §8.5, §9.3; Phase D)
+ *
+ * Implements Design Directives DD-1 / DD-3: the Mission is the primary object,
+ * and files are a SECONDARY TOOL. The file tree therefore keeps 100% of its
+ * capability but cedes visual weight to mission content.
+ *
+ * Blueprint §3.8 hierarchy — a file tree row name (rank 10) sits deliberately
+ * BELOW metadata (rank 9): 13px / 440 / text-muted. This is the most
+ * load-bearing single decision in the design, and it is expressed here.
+ *
+ * PRESENTATION ONLY: geometry and colour. No behaviour, no state, no data flow.
+ * The Explorer tree is a recursive DOM tree (NOT virtualized — the virtualized
+ * FileTreeV2 is used only by the Review and File Browser panels), so changing
+ * row height here carries no virtualizer-estimate coupling.
+ */
+
+/* Row — 28px pulse, dense padding, muted by default (Blueprint §3.7) */
+.hds-tree-row {
+  height: var(--hds-row-dense);
+  padding-right: var(--hds-spacing-2);
+  gap: var(--hds-spacing-1);
+  border-radius: var(--hds-radius-4);
+  font-size: var(--hds-size-13);
+  line-height: var(--hds-line-13);
+  font-weight: var(--hds-weight-regular);
+  color: var(--hds-text-muted);
+  transition: background-color var(--hds-motion-fast) var(--hds-ease-default),
+    color var(--hds-motion-fast) var(--hds-ease-default);
+}
+
+/* Blueprint §7.5 / Rule E-1: hover changes background only. No lift, no scale. */
+.hds-tree-row:hover {
+  background-color: var(--hds-bg-layer-02);
+  color: var(--hds-text-base);
+}
+
+/*
+ * Selected — Blueprint §4.3 weight ladder.
+ * A selected FILE uses `interactive-weak`; a selected MISSION uses the stronger
+ * `interactive-faint`. The mission is visibly the heavier selection.
+ */
+.hds-tree-row--active {
+  background-color: var(--hds-interactive-weak);
+  color: var(--hds-text-strong);
+}
+
+/* The 2px cobalt bar: the single selection indicator for every list (Rule B-3) */
+.hds-tree-row--active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 16px;
+  border-radius: var(--hds-radius-full);
+  background: var(--hds-interactive-base);
+}
+
+.hds-tree-row:focus-visible {
+  outline: 2px solid var(--hds-border-focus);
+  outline-offset: -2px;
+}
+
+/*
+ * File icons render in their mono variant at rest and gain colour on hover
+ * (existing FileIcon pair behaviour, preserved). This is how density is bought
+ * back as calm (Blueprint §3.7).
+ */
+.hds-tree-row [data-component="file-icon"] {
+  opacity: 0.75;
+  transition: opacity var(--hds-motion-fast) var(--hds-ease-default);
+}
+
+.hds-tree-row:hover [data-component="file-icon"],
+.hds-tree-row--active [data-component="file-icon"] {
+  opacity: 1;
+}
+
+/*
+ * Secondary-tool label (Blueprint §8.15).
+ * Five words that teach the product's model of itself: files appear when the
+ * mission needs them. Does more DD-3 work than any amount of restyling.
+ */
+.hds-explorer-secondary-label {
+  display: flex;
+  align-items: center;
+  gap: var(--hds-spacing-1);
+  padding: var(--hds-spacing-1) var(--hds-spacing-2);
+  border-top: 1px solid var(--hds-border-weak);
+  font-size: var(--hds-size-11);
+  line-height: var(--hds-line-11);
+  font-weight: var(--hds-weight-label);
+  letter-spacing: var(--hds-tracking-label);
+  text-transform: uppercase;
+  color: var(--hds-text-faint);
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hds-tree-row,
+  .hds-tree-row [data-component="file-icon"] {
+    transition: none;
+  }
+}
