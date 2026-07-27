@@ -173,8 +173,15 @@
   --hds-interactive-base: var(--v2-background-bg-accent, #2a5fff);
   --hds-interactive-hover: var(--v2-text-text-accent-hover, #1f4de8);
   --hds-interactive-active: var(--v2-text-text-accent-hover, #1a42c7);
-  --hds-interactive-faint: light-dark(rgba(42, 95, 255, 0.08), rgba(42, 95, 255, 0.12));
-  --hds-interactive-weak: light-dark(rgba(42, 95, 255, 0.05), rgba(42, 95, 255, 0.08));
+  /*
+   * Selection tints. Derived from the accent via color-mix() so a themed accent
+   * tints correctly instead of staying cobalt. There is no --v2-* equivalent
+   * for these two, which is why they are composed rather than mapped.
+   * Blueprint 4.3 weight ladder: a selected MISSION uses `faint` (stronger),
+   * a selected FILE uses `weak`.
+   */
+  --hds-interactive-faint: color-mix(in srgb, var(--hds-interactive-base) 12%, transparent);
+  --hds-interactive-weak: color-mix(in srgb, var(--hds-interactive-base) 8%, transparent);
 
   /* ==========================================================================
      SEMANTIC (Blueprint §4.5)
