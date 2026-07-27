@@ -6,6 +6,7 @@ import { useMarked } from "@opencode-ai/ui/context/marked"
 import { FileIcon } from "@opencode-ai/ui/file-icon"
 import { IconButton } from "@opencode-ai/ui/icon-button"
 import { Icon } from "@opencode-ai/ui/v2/icon"
+import { HdsEmptyState, HdsErrorState, HdsLoadingState } from "@/components/hds-states"
 
 export function PreviewPanel(): JSX.Element {
   const layout = useLayout()
@@ -222,46 +223,23 @@ export function PreviewPanel(): JSX.Element {
   )
 }
 
+// Delegated to the shared HDS state contract (Blueprint 8.17).
+// Copy and call sites are unchanged; only the visual treatment is unified.
 function EmptyState(props: { message: string }): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-center text-text-weak">
-      <Icon name="file" class="w-8 h-8 mb-2 opacity-50" />
-      <span class="text-12-regular">{props.message}</span>
-    </div>
-  )
+  return <HdsEmptyState icon="file-tree" title={props.message} />
 }
 
 function LoadingState(): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-text-weak gap-2">
-      <Icon name="spinner" class="w-5 h-5 animate-spin opacity-70" />
-      <span class="text-12-regular">Loading preview...</span>
-    </div>
-  )
+  return <HdsLoadingState label="Loading preview..." />
 }
 
 function ErrorState(props: { message: string; onRetry: () => void }): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-center text-text-weak gap-2">
-      <span class="text-12-regular text-syntax-critical">{props.message}</span>
-      <button
-        type="button"
-        class="px-2 py-1 bg-surface-base rounded-md hover:bg-surface-raised-base text-12-medium text-text-strong transition-colors cursor-pointer"
-        onClick={props.onRetry}
-      >
-        Retry
-      </button>
-    </div>
-  )
+  return <HdsErrorState message={props.message} onRetry={props.onRetry} />
 }
 
 function UnsupportedState(props: { path: string }): JSX.Element {
   return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-center text-text-weak gap-2">
-      <Icon name="file" class="w-8 h-8 opacity-50" />
-      <span class="text-12-medium text-text-strong">Binary or unsupported file format</span>
-      <span class="text-12-regular text-text-weak truncate max-w-md">{props.path}</span>
-    </div>
+    <HdsEmptyState icon="file-tree" title="Binary or unsupported file format" description={props.path} />
   )
 }
 

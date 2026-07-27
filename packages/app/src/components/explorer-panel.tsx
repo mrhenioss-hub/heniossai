@@ -15,6 +15,7 @@ import { createHomeScrollController, type HomeScrollController } from "@/pages/h
 import { HomeProjectsView } from "@/pages/home/home-projects-view"
 import { HomeSessionsView } from "@/pages/home/home-sessions-view"
 import { CollapsibleSection } from "./explorer-sections"
+import { HdsEmptyState, HdsErrorState, HdsLoadingState } from "@/components/hds-states"
 
 export interface FileEntry {
   path: string
@@ -434,35 +435,16 @@ function TreeItem(props: TreeItemProps): JSX.Element {
   )
 }
 
+// Delegated to the shared HDS state contract (Blueprint 8.17).
+// Copy and call sites are unchanged; only the visual treatment is unified.
 function EmptyState(props: { message: string }): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-center text-v2-text-text-muted">
-      <Icon name="folder" class="w-8 h-8 mb-2 opacity-50" />
-      <span class="text-[13px] [font-weight:440]">{props.message}</span>
-    </div>
-  )
+  return <HdsEmptyState icon="folder" title={props.message} />
 }
 
 function LoadingState(): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-v2-text-text-muted gap-2">
-      <Icon name="spinner" class="w-5 h-5 animate-spin opacity-70" />
-      <span class="text-[13px] [font-weight:440]">Loading workspace files...</span>
-    </div>
-  )
+  return <HdsLoadingState label="Loading workspace files..." />
 }
 
 function ErrorState(props: { message: string; onRetry: () => void }): JSX.Element {
-  return (
-    <div class="h-full w-full flex flex-col items-center justify-center p-4 text-center text-v2-text-text-muted gap-2">
-      <span class="text-[13px] [font-weight:440] text-syntax-critical">{props.message}</span>
-      <button
-        type="button"
-        class="px-2 py-1 bg-v2-background-bg-layer-01 rounded-[4px] hover:bg-v2-overlay-simple-overlay-hover text-[13px] [font-weight:530] text-v2-text-text-base transition-colors cursor-pointer"
-        onClick={props.onRetry}
-      >
-        Retry
-      </button>
-    </div>
-  )
+  return <HdsErrorState message={props.message} onRetry={props.onRetry} />
 }
