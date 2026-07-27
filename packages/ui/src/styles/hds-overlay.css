@@ -1,0 +1,52 @@
+/**
+ * HDS — Overlay foundation (Blueprint §8.7, §2.2; Phase G)
+ *
+ * One foundation for all 19 dialogs plus the command palette. 19 dialogs
+ * sharing one header/content/footer skeleton is the cheapest, most visible
+ * consistency win available (DD-7, Validation Package V-10).
+ *
+ * Blueprint §3.2 Refinement 2 — GLASS IS DEMOTED. `backdrop-filter: blur(12px)`
+ * is permitted ONLY on the modal scrim behind dialogs and the command palette.
+ * Popovers, menus, tooltips and toasts are opaque `bg-layer-01`, because blur
+ * on a dense workspace produces visual mud at 13px, costs compositor time on
+ * Windows/Tauri, and is the single most imitated effect in the category (DD-11).
+ *
+ * PRESENTATION ONLY. Kobalte owns the focus trap, Escape handling,
+ * backdrop-click dismissal and focus restoration; none of that is touched here.
+ * This file adjusts geometry and material only {I-BACKWARD}.
+ *
+ * CASCADE NOTE: this file is imported UNLAYERED from dialog-v2.tsx, directly
+ * after dialog-v2.css. It is deliberately NOT in the layered styles/index.css.
+ * Unlayered declarations outrank every @layer regardless of source order, so
+ * dialog-v2.css (unlayered, imported by its component) would silently beat a
+ * layered override. Matching its layer status is what makes these rules apply.
+ */
+
+/* E3 Modal scrim — the only glass in the product (Blueprint §3.2) */
+[data-component="dialog-overlay"] {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/*
+ * Dialog container — radius 12px (Blueprint §11.3: 12 = "overlay" category).
+ * The existing foundation used 6px, which reads as an "interactive" element
+ * rather than a major surface. 12px is what tells a user at a glance that this
+ * is a modal, not a button.
+ */
+[data-component="dialog-v2"] [data-slot="dialog-container"] {
+  border-radius: var(--hds-radius-12);
+  border: 1px solid var(--hds-border-base);
+}
+
+/*
+ * Reduced motion / forced colors.
+ * Blur is a material, not a motion, so it survives prefers-reduced-motion.
+ * Under forced-colors it is removed so the OS palette governs contrast.
+ */
+@media (forced-colors: active) {
+  [data-component="dialog-overlay"] {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
