@@ -1,0 +1,99 @@
+/**
+ * HDS — Mission Timeline "Spine"
+ *
+ * The Spine is HeniossAI's signature visual device: a single continuous 1px
+ * hairline running down the left margin of the mission timeline, tying every
+ * turn (human, model, tool, permission) into one visible thread.
+ *
+ * ============================================================================
+ * PRESENTATION-ONLY PROOF  (Final Validation Package §3)
+ * ============================================================================
+ *
+ * DOM impact ................ ZERO new nodes. ZERO edits to any file under
+ *                             packages/app/src/pages/session/.
+ *                             Targets `[data-timeline-virtual-content]`, an
+ *                             attribute that ALREADY exists in the rendered DOM
+ *                             (message-timeline.tsx:1840).
+ *
+ * Precedent ................. session-ui/src/components/file.css:5 already
+ *                             styles `[data-timeline-row]` from an external
+ *                             stylesheet. This technique is established here.
+ *
+ * Why a background gradient, not ::before —
+ *   The container's height is rewritten on essentially every measurement pass
+ *   (`getTotalSize()` at :1843, and imperatively inside `scrollToFn` at :427).
+ *   A ::before with `bottom:0` participates in LAYOUT and would be re-laid-out
+ *   on each of those writes. A background gradient is PAINTED, not laid out,
+ *   and `background-size: 1px 100%` is the cheapest possible paint primitive.
+ *
+ * Virtualization ............ UNTOUCHED. Never reads or writes overscan,
+ *                             estimateSize, rangeExtractor, getItemKey,
+ *                             anchorTo, followOnAppend, scrollMargin,
+ *                             paddingEnd.
+ * Streaming ................. UNTOUCHED. Painted on an ancestor; never reads
+ *                             message state.
+ * Dynamic heights ........... UNTOUCHED. A background contributes ZERO height
+ *                             and is not observed by ResizeObserver. Applied to
+ *                             the CONTAINER, never to a measured element, so it
+ *                             cannot enter the measurement path
+ *                             (measureElement :1273/:1279, resizeItem :466-489).
+ * Prepend anchoring ......... UNTOUCHED. Adds no transition to the scroll
+ *                             container and no element matching
+ *                             [data-timeline-key] (RAF loop :381-409).
+ *
+ * ============================================================================
+ * ACTIVE SEGMENT — DELIBERATELY OMITTED  (Validation Package §3.6, Condition C-1)
+ * ============================================================================
+ * The Blueprint originally specified a cobalt segment beside the streaming
+ * turn. Code inspection proved NO streaming state is exposed to the DOM:
+ * `working()` is an internal signal in session-turn.tsx (:335,:373,:410) and is
+ * never reflected as a styleable attribute. Adding one would require editing a
+ * Session-internal file — a direct {I-SESSION-FILES} violation.
+ *
+ * Per the approved validation decision, we ship OPTION A: the static neutral
+ * rail. Liveness continues to be carried by the EXISTING streaming caret and
+ * the EXISTING tool-card spinners. Do not add an active segment without
+ * engineering sign-off on the coupling.
+ *
+ * ============================================================================
+ * ALIGNMENT
+ * ============================================================================
+ * Timeline rows are full-width but their CONTENT is centred and
+ * breakpoint-dependent (message-timeline.tsx:1084-1085):
+ *     md:max-w-200  -> 800px   (>= 48rem)
+ *     2xl:max-w-[1000px]       (>= 96rem)
+ * The rail must therefore track the content's left edge, not the row's.
+ * Below `md` the content is NOT centred, so the rail is suppressed to avoid
+ * drawing a line through the middle of the text.
+ */
+
+@media (min-width: 48rem) {
+  [data-timeline-virtual-content] {
+    /* 1px hairline at the content's left margin; painted, never laid out. */
+    background-image: linear-gradient(to right, var(--hds-border-base) 0 1px, transparent 1px);
+    background-repeat: no-repeat;
+    background-size: 1px 100%;
+    /* content is 800px wide and centred => left edge sits at 50% - 400px */
+    background-position: calc(50% - 400px) 0;
+    background-attachment: local;
+  }
+}
+
+@media (min-width: 96rem) {
+  [data-timeline-virtual-content] {
+    /* content widens to 1000px => left edge sits at 50% - 500px */
+    background-position: calc(50% - 500px) 0;
+  }
+}
+
+/*
+ * The Spine is a structural hairline, not motion, so `prefers-reduced-motion`
+ * does not apply. It is intentionally left visible in all motion modes.
+ *
+ * Forced-colors: remove the decorative rail so the OS palette governs.
+ */
+@media (forced-colors: active) {
+  [data-timeline-virtual-content] {
+    background-image: none;
+  }
+}
