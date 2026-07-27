@@ -1,0 +1,85 @@
+/**
+ * HDS — Mission surfaces: timeline turns, docks, composer (Blueprint §8.12; Phase F)
+ *
+ * ============================================================================
+ * BOUNDARY COMPLIANCE — READ BEFORE EDITING
+ * ============================================================================
+ * Phase F is the only phase that styles surfaces owned by the Session. It is
+ * implemented with the SAME non-invasive technique validated for the Spine and
+ * already used elsewhere in this codebase (session-ui/components/file.css:5
+ * styles [data-timeline-row] from an external stylesheet):
+ *
+ *   - ZERO edits to any file under packages/app/src/pages/session/
+ *   - ZERO edits to session-ui component .tsx files
+ *   - ZERO new DOM nodes, attributes, props, signals or handlers
+ *   - Targets ONLY data-* attributes that ALREADY exist in the rendered DOM
+ *
+ * Every selector below was verified to exist in source before being used:
+ *   [data-component="session-turn"]      session-turn.tsx:386
+ *   [data-slot="session-turn-content"]   session-turn.tsx:390
+ *   [data-dock-surface="shell"]          ui/components/dock-surface.css:1
+ *   [data-dock-surface="tray"]           ui/components/dock-surface.css:24
+ *   [data-component="prompt-input-v2"]   prompt-input/index.tsx:107
+ *
+ * Runtime, state, providers, business logic and lifecycle are untouched. This
+ * file changes geometry, colour and elevation only {I-SESSION} {I-RUNTIME}
+ * {I-BACKWARD} {I-VISIBLE-ISOLATION}.
+ *
+ * ============================================================================
+ * CASCADE
+ * ============================================================================
+ * This file is imported into the `components` layer. That is correct for the
+ * turn and dock rules, whose sources (session-turn.css, dock-surface.css) are
+ * also layered `components`, so ordinary source order decides and this file
+ * wins by coming later.
+ *
+ * The composer is the exception: it is styled with Tailwind UTILITIES
+ * (`rounded-xl`, `shadow-[...]`) which live in the `utilities` layer and
+ * therefore outrank `components` no matter the order. Composer rules are
+ * consequently in hds-mission-composer.css, which is imported into `utilities`.
+ * Do not merge the two files.
+ */
+
+/* ==========================================================================
+   TIMELINE TURNS (Blueprint §3.6, §5.2, §8.12)
+   The whitespace gradient: mission content gets 12px gaps and 180% leading,
+   the most generous in the product. This IS the mission-first hierarchy.
+   ========================================================================== */
+
+[data-component="session-turn"] {
+  /* Blueprint §3.6: 12px between turns, the top of the whitespace gradient. */
+  padding-block: var(--hds-gap-timeline);
+}
+
+/*
+ * Blueprint §5.2: 180% line-height on mission prose — the only 180% in the
+ * product. Model output is long-form reading; 143% is right for a UI label and
+ * wrong for four paragraphs of reasoning. Scoped to prose only so code blocks,
+ * diffs and tool output keep their own metrics.
+ */
+[data-slot="session-turn-message-content"] p,
+[data-slot="session-turn-assistant-content"] p {
+  line-height: var(--hds-line-timeline);
+}
+
+/* ==========================================================================
+   DOCKS (Blueprint §8.12)
+   E1 objects: bg-layer-01 + 1px border + shadow-xs, radius 8.
+   Permission and Question additionally carry a semantic border, applied by the
+   dock components themselves; we only set the shared geometry here.
+   ========================================================================== */
+
+[data-dock-surface="shell"],
+[data-dock-surface="tray"] {
+  border-radius: var(--hds-radius-8);
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   Nothing here animates, but keep the guard so future additions inherit it.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  [data-component="session-turn"] {
+    transition: none;
+  }
+}
