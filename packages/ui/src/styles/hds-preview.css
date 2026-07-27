@@ -1,0 +1,84 @@
+/**
+ * HDS — Preview panel (Blueprint §8.16, §9.8; Phase E)
+ *
+ * Implements DD-3. The Preview is a SECONDARY TOOL: reference material that
+ * must never out-compete the mission timeline (primary) or Review (the AI's
+ * actual output). Subordination is achieved with three coordinated reductions —
+ * height, type size, and content opacity — and by removing NOTHING. Every
+ * preview capability and all eight content states remain.
+ *
+ * Blueprint §8.6 tab weighting, the three tab species:
+ *   Mission tabs (titlebar)          28px in a 36 strip, 13px
+ *   Auxiliary primary (Review)       36px, 14/530
+ *   Secondary (Preview files)        32px, 12/440 muted   <- this file
+ *
+ * PRESENTATION ONLY: geometry, colour, opacity. No behaviour, no state.
+ * Per-file scroll restoration, the tab open/close/switch logic and the SDK read
+ * path are untouched {I-BACKWARD}.
+ */
+
+/* Tab bar — 32px, shorter than Review's 36px (Blueprint §8.16) */
+.hds-preview-tabbar {
+  height: 32px;
+  min-height: 32px;
+  border-bottom: 1px solid var(--hds-border-weak);
+  background: var(--hds-bg-base);
+}
+
+/* Tab — 12px muted; deliberately quieter than a Review trigger's 14/530 */
+.hds-preview-tab {
+  height: 32px;
+  padding: 0 var(--hds-spacing-3);
+  gap: var(--hds-spacing-1);
+  font-size: var(--hds-size-12);
+  line-height: var(--hds-line-12);
+  font-weight: var(--hds-weight-regular);
+  color: var(--hds-text-muted);
+  background: transparent;
+  border-right: 1px solid var(--hds-border-weak);
+  transition: background-color var(--hds-motion-fast) var(--hds-ease-default),
+    color var(--hds-motion-fast) var(--hds-ease-default);
+}
+
+.hds-preview-tab:hover {
+  background-color: var(--hds-bg-layer-02);
+  color: var(--hds-text-base);
+}
+
+/*
+ * Active — 2px cobalt bottom border, consistent with every other tab species,
+ * but the type stays small: active does not promote a secondary tool to primary.
+ */
+.hds-preview-tab--active {
+  color: var(--hds-text-base);
+  box-shadow: inset 0 -2px 0 0 var(--hds-interactive-base);
+}
+
+.hds-preview-tab:focus-visible {
+  outline: 2px solid var(--hds-border-focus);
+  outline-offset: -2px;
+}
+
+/*
+ * Content at 90% opacity (Blueprint §8.16).
+ * Prototype note (Validation Package §6.3 item 2): 90% was flagged as needing
+ * validation because it can read as "disabled" rather than "secondary". It is
+ * applied ONLY to the content region, never to the tab bar or controls, so
+ * interactive affordances keep full contrast and no control drops below AA.
+ */
+.hds-preview-content {
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hds-preview-tab {
+    transition: none;
+  }
+}
+
+/* Respect forced-colors: opacity reduction would fight the OS palette. */
+@media (forced-colors: active) {
+  .hds-preview-content {
+    opacity: 1;
+  }
+}

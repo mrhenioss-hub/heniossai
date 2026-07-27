@@ -92,7 +92,7 @@ export function PreviewPanel(): JSX.Element {
       <div
         role="tablist"
         aria-label="Preview tabs"
-        class="flex items-center justify-between border-b border-border-base shrink-0 bg-background-base overflow-x-auto no-scrollbar"
+        class="hds-preview-tabbar flex items-center justify-between shrink-0 overflow-x-auto no-scrollbar"
       >
         <div class="flex items-center min-w-0 flex-1 overflow-x-auto no-scrollbar">
           <For each={openFiles()}>
@@ -103,14 +103,11 @@ export function PreviewPanel(): JSX.Element {
                 <div
                   role="tab"
                   aria-selected={isActive()}
-                  class="flex items-center gap-1.5 px-3 py-2 border-r border-border-base text-12-regular cursor-pointer transition-colors shrink-0 max-w-[180px]"
-                  classList={{
-                    "bg-background-base text-text-strong font-medium border-b-2 border-b-primary": isActive(),
-                    "bg-surface-base text-text-weak hover:bg-surface-raised-base": !isActive(),
-                  }}
+                  class="hds-preview-tab flex items-center cursor-pointer shrink-0 max-w-[180px]"
+                  classList={{ "hds-preview-tab--active": isActive() }}
                   onClick={() => layout.previewPanel.selectFile(file)}
                 >
-                  <FileIcon node={{ path: file, type: "file" }} class="w-3.5 h-3.5 shrink-0" />
+                  <FileIcon node={{ path: file, type: "file" }} class="shrink-0" style={{ width: "12px", height: "12px" }} />
                   <span class="truncate flex-1" title={file}>
                     {fileName}
                   </span>
@@ -123,7 +120,7 @@ export function PreviewPanel(): JSX.Element {
                     }}
                     aria-label={`Close ${fileName}`}
                   >
-                    <Icon name="close" class="w-3 h-3" />
+                    <Icon name="close" style={{ width: "10px", height: "10px" }} />
                   </button>
                 </div>
               )
@@ -147,7 +144,7 @@ export function PreviewPanel(): JSX.Element {
         ref={contentRef}
         role="tabpanel"
         aria-label="File content preview"
-        class="flex-1 min-h-0 overflow-y-auto p-4 select-text"
+        class="hds-preview-content flex-1 min-h-0 overflow-y-auto p-4 select-text"
         onScroll={(e) => {
           const file = activeFile()
           if (file) setScrollPositions(file, e.currentTarget.scrollTop)
