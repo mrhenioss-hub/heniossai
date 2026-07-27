@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#121214"/>
+  <text x="20" y="30" fill="#F4F4F3" font-size="16" font-weight="500">Navigation System AI-First — Activity Bar 48 + Side Bar Sessions first + Command Palette + Context Menus</text>
+  <!-- Activity Bar nav -->
+  <rect x="20" y="60" width="48" height="400" fill="#18181B" stroke="#2A2A2D" rx="8"/>
+  <text x="30" y="85" fill="#F4F4F3" font-size="10">💬S</text><text x="25" y="95" fill="#2A5FFF" font-size="8">active</text>
+  <text x="30" y="120" fill="#8A8A87" font-size="10">◧R</text>
+  <text x="30" y="155" fill="#8A8A87" font-size="10">◨C</text>
+  <text x="30" y="190" fill="#5E5E5B" font-size="10">📁E</text><text x="25" y="200" fill="#5E5E5B" font-size="7">secondary</text>
+  <!-- Tooltip -->
+  <rect x="80" y="70" width="140" height="28" rx="6" fill="#121214" stroke="#2A2A2D"/><text x="90" y="88" fill="white" font-size="12">Sessions (mod+shift+s)</text>
+  <!-- Titlebar -->
+  <rect x="200" y="60" width="600" height="36" rx="6" fill="#18181B" stroke="#2A2A2D"/><text x="210" y="82" fill="#8A8A87" font-size="12">← → Tabs: auth-refactor active + search 🔍 terminal ◧ review ◧ file  • status dot green</text>
+  <!-- Command Palette -->
+  <rect x="200" y="110" width="600" height="280" rx="12" fill="#1F1F22" stroke="#2A2A2D" stroke-width="1"/>
+  <text x="220" y="135" fill="#8A8A87" font-size="16">Type a command or search...</text>
+  <text x="220" y="165" fill="#5E5E5B" font-size="11" font-weight="600">COMMANDS</text>
+  <rect x="220" y="175" width="560" height="32" rx="4" fill="#262629"/><text x="230" y="195" fill="#F4F4F3" font-size="13">🔧 Toggle Explorer • mod+shift+e</text>
+  <text x="220" y="225" fill="#5E5E5B" font-size="11">SESSIONS</text>
+  <rect x="220" y="235" width="560" height="32" rx="4" fill="#262629"/><text x="230" y="255" fill="#CBCBC8" font-size="13">💬 auth-refactor • 2m ago</text>
+  <!-- Context Menu -->
+  <rect x="850" y="110" width="180" height="100" rx="8" fill="#1F1F22" stroke="#2A2A2D"/><text x="860" y="130" fill="#CBCBC8" font-size="12">Open Preview</text><text x="860" y="150" fill="#CBCBC8" font-size="12">Copy Path</text><text x="860" y="170" fill="#CBCBC8" font-size="12">Copy Name</text><text x="860" y="190" fill="#5E5E5B" font-size="10">File tree node right-click</text>
+  <!-- Side Bar Sessions first -->
+  <rect x="200" y="410" width="240" height="300" rx="8" fill="#18181B" stroke="#2A2A2D"/><text x="210" y="435" fill="#F4F4F3" font-size="13" font-weight="500">SESSIONS first (AI primary)</text><text x="210" y="455" fill="#CBCBC8" font-size="13">Today</text><text x="210" y="475" fill="#8A8A87" font-size="12">auth-refactor • Working spinner</text><text x="210" y="505" fill="#5E5E5B" font-size="12">Projects second muted Files secondary</text>
+  <text x="210" y="525" fill="#8A8A87" font-size="12">📁 heniossai-core</text><text x="210" y="545" fill="#5E5E5B" font-size="11">13 regular muted #8A8A87</text>
+  <!-- Toast -->
+  <rect x="1100" y="60" width="300" height="60" rx="8" fill="#1F1F22" stroke="#2A2A2D"/><text x="1110" y="85" fill="#F4F4F3" font-size="12">Session archived — Undo</text><circle cx="1360" cy="75" r="8" fill="#2A2A2D"/><text x="1355" y="79" fill="#8A8A87" font-size="10">✕</text>
+</svg>

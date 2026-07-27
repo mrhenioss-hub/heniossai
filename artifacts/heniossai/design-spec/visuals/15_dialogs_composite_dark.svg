@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#121214"/>
+  <text x="20" y="30" fill="#F4F4F3" font-size="14">Dialogs Composite — SelectDirectory native tree @pierre/trees • SelectModel provider tabs • EditProject • ConnectProvider OAuth</text>
+  <!-- Select Directory -->
+  <rect x="20" y="50" width="380" height="300" rx="12" fill="#1F1F22" stroke="#2A2A2D"/>
+  <text x="35" y="75" fill="#F4F4F3" font-size="14" font-weight="500">Select Directory</text><text x="335" y="75" fill="#8A8A87" font-size="14">✕</text>
+  <rect x="35" y="85" width="350" height="32" rx="6" fill="#18181B" stroke="#2A2A2D"/><text x="45" y="105" fill="#8A8A87" font-size="12">/home/user/projects</text>
+  <text x="35" y="135" fill="#CBCBC8" font-size="12">▼ heniossai</text><text x="50" y="155" fill="#8A8A87" font-size="12">▸ src • ▸ packages • 📄 README.md</text>
+  <rect x="35" y="260" width="80" height="28" rx="6" fill="#1F1F22" stroke="#2A2A2D"/><text x="45" y="278" fill="#8A8A87" font-size="12">Cancel</text><rect x="125" y="260" width="80" height="28" rx="6" fill="#2A5FFF"/><text x="135" y="278" fill="white" font-size="12">Open</text>
+  <!-- Select Model -->
+  <rect x="420" y="50" width="380" height="300" rx="12" fill="#1F1F22" stroke="#2A2A2D"/>
+  <text x="435" y="75" fill="#F4F4F3" font-size="14" font-weight="500">Select Model</text>
+  <text x="435" y="100" fill="#2A5FFF" font-size="12" font-weight="500">Anthropic • OpenAI • Google</text>
+  <rect x="435" y="115" width="350" height="32" rx="6" fill="#18181B" stroke="#2A2A2D"/><text x="445" y="135" fill="#8A8A87" font-size="12">Search models...</text>
+  <rect x="435" y="155" width="350" height="40" rx="6" fill="#262629"/><text x="445" y="175" fill="#F4F4F3" font-size="13">Claude 4 Sonnet • 200k</text><text x="445" y="190" fill="#8A8A87" font-size="11">Variant: default • Tools</text>
+  <rect x="435" y="205" width="350" height="40" rx="6" fill="none"/><text x="445" y="225" fill="#CBCBC8" font-size="13">Claude 4 Opus • 200k</text>
+  <!-- Edit Project -->
+  <rect x="820" y="50" width="360" height="300" rx="12" fill="#1F1F22" stroke="#2A2A2D"/>
+  <text x="835" y="75" fill="#F4F4F3" font-size="14">Edit Project</text>
+  <text x="835" y="105" fill="#8A8A87" font-size="12">Name</text><rect x="835" y="115" width="330" height="32" rx="6" fill="#18181B" stroke="#2A2A2D"/><text x="845" y="135" fill="#CBCBC8" font-size="12">heniossai</text>
+  <text x="835" y="165" fill="#8A8A87" font-size="12">Icon Color</text><g><circle cx="845" cy="185" r="12" fill="#2A1F26"/><text x="841" y="189" fill="#E8A8C8" font-size="10">H</text><circle cx="875" cy="185" r="12" fill="#1F2624"/><text x="871" y="189" fill="#8ED8C3" font-size="10">H</text><circle cx="905" cy="185" r="12" fill="#29221F"/><text x="901" y="189" fill="#E3A070" font-size="10">H</text><circle cx="935" cy="185" r="12" fill="#25212A"/><text x="931" y="189" fill="#C2A8E8" font-size="10">H</text><circle cx="965" cy="185" r="10" fill="#1F2628" stroke="#2A5FFF" stroke-width="2"/></g>
+  <text x="835" y="220" fill="#8A8A87" font-size="12">Path</text><text x="835" y="235" fill="#5E5E5B" font-size="11">/home/user/heniossai (read-only)</text>
+  <!-- Connect Provider -->
+  <rect x="20" y="380" width="380" height="300" rx="12" fill="#1F1F22" stroke="#2A2A2D"/>
+  <text x="35" y="405" fill="#F4F4F3" font-size="14">Connect Provider</text>
+  <text x="35" y="435" fill="#8A8A87" font-size="12">Anthropic OAuth</text>
+  <rect x="35" y="450" width="350" height="32" rx="6" fill="#18181B" stroke="#2A2A2D"/><text x="45" y="470" fill="#5E5E5B" font-size="12">API Key • •••••••••• 👁</text>
+  <rect x="35" y="500" width="350" height="80" rx="8" fill="#18181B" stroke="#2A2A2D"/><text x="45" y="525" fill="#8A8A87" font-size="12">Steps: 1. Create key at console.anthropic.com</text><text x="45" y="545" fill="#8A8A87" font-size="12">2. Paste above • 3. Test connection</text>
+  <rect x="35" y="600" width="100" height="28" rx="6" fill="#2A5FFF"/><text x="45" y="618" fill="white" font-size="12">Connect</text>
+  <!-- Backdrop note -->
+  <text x="20" y="720" fill="#5E5E5B" font-size="11">All dialogs: backdrop rgba(0,0,0,0.4) + blur 12px fade 180ms container bg layer-01 border base rounded 12 shadow-lg focus trap Esc close — Presentation Layer only, zero runtime</text>
+</svg>

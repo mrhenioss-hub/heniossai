@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#121214"/>
+  <text x="20" y="30" fill="#F4F4F3" font-size="16" font-weight="500">Responsive AI-First — Ultra-wide 3440 • Laptop 1280 • Mobile &lt;768 Drawer</text>
+  <!-- Ultra-wide -->
+  <text x="20" y="60" fill="#8A8A87" font-size="12">Ultra-wide 3440 — All panels Activity 48 Side 240 Main flex 600 Auxiliary 360+280 Review Context primary Preview secondary muted</text>
+  <rect x="20" y="75" width="500" height="250" rx="8" fill="none" stroke="#2A2A2D"/>
+  <rect x="20" y="75" width="30" height="250" fill="#18181B" stroke="#2A2A2D"/><text x="25" y="90" fill="#8A8A87" font-size="6">48</text>
+  <rect x="50" y="75" width="80" height="250" fill="#18181B" stroke="#2A2A2D"/><text x="55" y="90" fill="#CBCBC8" font-size="7">240 Sessions first</text>
+  <rect x="130" y="75" width="200" height="250" fill="#18181B" stroke="#2A5FFF" stroke-opacity="0.5"/><text x="135" y="90" fill="#F4F4F3" font-size="8">Main Timeline 60% elevated</text>
+  <rect x="330" y="75" width="120" height="120" fill="#1F1F22" stroke="#2A2A2D"/><text x="335" y="90" fill="#F4F4F3" font-size="7">Review primary 14</text>
+  <rect x="330" y="195" width="120" height="80" fill="#18181B" stroke="#232326" opacity="0.9"/><text x="335" y="210" fill="#8A8A87" font-size="7">Preview secondary 12 muted</text>
+  <rect x="130" y="275" width="320" height="40" fill="#18181B" stroke="#2A2A2D"/><text x="135" y="295" fill="#8A8A87" font-size="7">Terminal 200</text>
+  <!-- Laptop -->
+  <text x="600" y="60" fill="#8A8A87" font-size="12">Laptop 1280 — Preview overlay drawer 80% backdrop</text>
+  <rect x="600" y="75" width="350" height="250" rx="8" fill="none" stroke="#2A2A2D"/>
+  <rect x="600" y="75" width="25" height="250" fill="#18181B" stroke="#2A2A2D"/>
+  <rect x="625" y="75" width="70" height="250" fill="#18181B" stroke="#2A2A2D"/>
+  <rect x="695" y="75" width="150" height="250" fill="#18181B" stroke="#2A5FFF" stroke-opacity="0.5"/>
+  <rect x="750" y="75" width="150" height="250" rx="8" fill="#1F1F22" stroke="#2A2A2D" opacity="0.8"/><text x="760" y="90" fill="#F4F4F3" font-size="7">Preview overlay 80% blur</text><text x="760" y="105" fill="#8A8A87" font-size="6">mod+shift+p toggles</text>
+  <!-- Mobile -->
+  <text x="20" y="380" fill="#8A8A87" font-size="12">Mobile &lt;768 — Drawer sidebar slide-in left 240 backdrop Preview full-screen modal Terminal full-screen Toast bottom Input 16px iOS</text>
+  <rect x="20" y="395" width="250" height="400" rx="8" fill="none" stroke="#2A2A2D" stroke-dasharray="4 4"/>
+  <rect x="20" y="395" width="250" height="400" rx="8" fill="#18181B" stroke="#2A2A2D"/>
+  <text x="30" y="420" fill="#F4F4F3" font-size="10">Drawer — Sessions first</text>
+  <rect x="30" y="430" width="200" height="32" rx="6" fill="#2A5FFF"/><text x="40" y="450" fill="white" font-size="10">+ New Session</text>
+  <text x="30" y="480" fill="#8A8A87" font-size="10">auth-refactor Working</text>
+  <rect x="30" y="500" width="230" height="200" rx="8" fill="#121214" stroke="#2A2A2D" opacity="0.5"/><text x="40" y="520" fill="#5E5E5B" font-size="8">Backdrop blur 12</text>
+  <rect x="300" y="395" width="250" height="400" rx="8" fill="#18181B" stroke="#2A2A2D"/><text x="310" y="420" fill="#F4F4F3" font-size="10">Main Timeline full width</text><text x="310" y="440" fill="#8A8A87" font-size="10">No side bar auto-closed below 768</text><text x="310" y="460" fill="#8A8A87" font-size="10">isDesktop mediaQuery 768</text>
+  <rect x="300" y="600" width="250" height="100" rx="8" fill="#1F1F22" stroke="#2A2A2D"/><text x="310" y="620" fill="#CBCBC8" font-size="10">Composer 16px iOS prevent zoom</text>
+  <text x="600" y="400" fill="#8A8A87" font-size="10">Toast bottom on mobile</text>
+  <rect x="600" y="420" width="200" height="50" rx="8" fill="#1F1F22" stroke="#2A2A2D"/><text x="610" y="445" fill="#F4F4F3" font-size="10">Session archived</text>
+</svg>

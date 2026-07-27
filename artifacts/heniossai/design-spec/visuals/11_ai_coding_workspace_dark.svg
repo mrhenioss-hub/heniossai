@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#121214"/>
+  <!-- Titlebar 36px -->
+  <rect width="1600" height="36" fill="#18181B" stroke="#2A2A2D" stroke-width="1"/>
+  <text x="20" y="22" fill="#8A8A87" font-family="Inter, sans-serif" font-size="12">HeniossAI IDE — auth-refactor • Claude 4 Sonnet • Build • Working</text>
+  <circle cx="1520" cy="18" r="4" fill="#3ECF4A"/><text x="1530" y="21" fill="#8A8A87" font-size="10" font-family="Inter">Healthy</text>
+  <!-- Activity Bar 48 -->
+  <rect x="0" y="36" width="48" height="864" fill="#121214" stroke="#2A2A2D" stroke-width="1"/>
+  <g>
+    <rect x="8" y="50" width="32" height="32" rx="6" fill="#2E2E31"/><text x="16" y="70" fill="#F4F4F3" font-size="14">💬</text><!-- sessions active -->
+    <rect x="8" y="90" width="32" height="32" rx="6" fill="none"/><text x="16" y="110" fill="#8A8A87" font-size="14">◧</text><!-- review -->
+    <rect x="8" y="130" width="32" height="32" rx="6" fill="none"/><text x="16" y="150" fill="#8A8A87" font-size="14">◨</text><!-- context -->
+    <rect x="8" y="170" width="32" height="32" rx="6" fill="none"/><text x="16" y="190" fill="#5E5E5B" font-size="14">📁</text><!-- explorer secondary muted -->
+  </g>
+  <rect x="20" y="843" width="2" height="16" rx="1" fill="#2A5FFF"/><text x="10" y="800" fill="#8A8A87" font-size="10">active</text>
+  <!-- Side Bar Sessions Primary 240 -->
+  <rect x="48" y="36" width="240" height="864" fill="#18181B" stroke="#2A2A2D" stroke-width="1"/>
+  <text x="60" y="65" fill="#F4F4F3" font-size="13" font-weight="500">SESSIONS</text>
+  <rect x="60" y="75" width="200" height="32" rx="6" fill="#2A5FFF"/><text x="70" y="95" fill="white" font-size="13">+ New Session</text>
+  <text x="60" y="125" fill="#8A8A87" font-size="11" font-weight="600" letter-spacing="0.6">RECENT</text>
+  <g>
+    <rect x="60" y="135" width="200" height="56" rx="6" fill="#2E2E31" stroke="#2A5FFF" stroke-opacity="0.12"/><text x="70" y="155" fill="#F4F4F3" font-size="13" font-weight="500">auth-refactor</text><text x="70" y="172" fill="#8A8A87" font-size="12">JWT migration • 2m ago</text><circle cx="240" cy="155" r="4" fill="#3ECF4A"/>
+    <rect x="60" y="200" width="200" height="48" rx="6" fill="none"/><text x="70" y="220" fill="#CBCBC8" font-size="13">api-gateway</text><text x="70" y="235" fill="#5E5E5B" font-size="11">Yesterday • Permission</text><circle cx="240" cy="220" r="4" fill="#F5B83A"/>
+    <rect x="60" y="255" width="200" height="48" rx="6" fill="none"/><text x="70" y="275" fill="#8A8A87" font-size="13">edge-inference</text><text x="70" y="290" fill="#5E5E5B" font-size="11">Older • Error</text><circle cx="240" cy="275" r="4" fill="#FF4D4D"/>
+  </g>
+  <text x="60" y="350" fill="#5E5E5B" font-size="12">Files secondary muted 13 regular #8A8A87</text>
+  <!-- Main Timeline 60% weight -->
+  <rect x="288" y="36" width="700" height="664" fill="#18181B"/>
+  <text x="310" y="65" fill="#5E5E5B" font-size="11" font-weight="600">YOU • 11:42 AM</text>
+  <text x="310" y="85" fill="#CBCBC8" font-size="14">Refactor auth module to use JWT</text>
+  <text x="310" y="120" fill="#5E5E5B" font-size="11" font-weight="600">CLAUDE 4 SONNET • BUILD • 11:43 AM</text>
+  <text x="310" y="145" fill="#CBCBC8" font-size="14">I'll create a plan and start execution.</text>
+  <rect x="310" y="160" width="600" height="80" rx="8" fill="#1F1F22" stroke="#2A2A2D"/><text x="325" y="185" fill="#F4F4F3" font-size="13" font-weight="500">Todo 3/5 • Spring anim</text><text x="325" y="205" fill="#8A8A87" font-size="12">✓ Analyze auth usage ✓ Design JWT ✓ Implement jwt.ts</text><text x="325" y="225" fill="#CBCBC8" font-size="12">◯ Update middleware ◯ Tests</text>
+  <rect x="310" y="260" width="600" height="100" rx="8" fill="#1F1F22" stroke="#2A2A2D"/><text x="325" y="285" fill="#F5B83A" font-size="13">⚠ Permission Requested</text><text x="325" y="305" fill="#8A8A87" font-size="12">Write to src/auth/jwt.ts</text><rect x="325" y="315" width="60" height="28" rx="6" fill="#2A2A2D"/><text x="335" y="333" fill="#8A8A87" font-size="12">Deny</text><rect x="395" y="315" width="100" height="28" rx="6" fill="#1F1F22" stroke="#2A2A2D"/><text x="405" y="333" fill="#CBCBC8" font-size="12">Allow Always</text><rect x="505" y="315" width="90" height="28" rx="6" fill="#2A5FFF"/><text x="515" y="333" fill="white" font-size="12">Allow Once</text>
+  <!-- Composer elevated -->
+  <rect x="310" y="380" width="600" height="120" rx="12" fill="#1F1F22" stroke="#2A2A2D" stroke-width="1"/>
+  <g>
+    <rect x="325" y="395" width="80" height="24" rx="12" fill="rgba(42,95,255,0.12)" stroke="rgba(42,95,255,0.08)"/><text x="335" y="411" fill="#CBCBC8" font-size="11">auth.ts:42-58 ✕</text>
+    <rect x="410" y="395" width="70" height="24" rx="12" fill="rgba(42,95,255,0.12)" stroke="rgba(42,95,255,0.08)"/><text x="420" y="411" fill="#CBCBC8" font-size="11">jwt.svg ✕</text>
+  </g>
+  <text x="325" y="445" fill="#8A8A87" font-size="14">What do you want to build?</text>
+  <text x="325" y="475" fill="#5E5E5B" font-size="12">Model Claude 4 Sonnet • Agent Build • Send ⏎</text>
+  <!-- Auxiliary Review primary 360 -->
+  <rect x="988" y="36" width="360" height="464" fill="#18181B" stroke="#2A2A2D" stroke-width="1"/>
+  <text x="1005" y="65" fill="#F4F4F3" font-size="14" font-weight="500">Review • 3 files +45 -12</text>
+  <text x="1005" y="85" fill="#8A8A87" font-size="13">Filter diffs...</text>
+  <rect x="1005" y="95" width="330" height="28" rx="4" fill="#2A5FFF" fill-opacity="0.12"/><text x="1015" y="113" fill="#F4F4F3" font-size="13">src/auth/jwt.ts A</text>
+  <rect x="1005" y="125" width="330" height="28" rx="4" fill="none"/><text x="1015" y="143" fill="#8A8A87" font-size="13">src/middleware.ts M</text>
+  <rect x="1005" y="160" width="330" height="200" rx="8" fill="#1F1F22" stroke="#2A2A2D"/><text x="1015" y="180" fill="#3ECF4A" font-size="12">+ async def fetch_data():</text><text x="1015" y="200" fill="#3ECF4A" font-size="12">+   await aiohttp.ClientSession().get()</text><text x="1015" y="220" fill="#FF8A8A" font-size="12">-   requests.get('file_data')</text>
+  <!-- Preview secondary muted 12 -->
+  <rect x="988" y="500" width="360" height="200" fill="#18181B" stroke="#232326" stroke-width="1" opacity="0.9"/>
+  <text x="1005" y="525" fill="#8A8A87" font-size="12">README.md • 12 muted secondary</text>
+  <text x="1005" y="545" fill="#5E5E5B" font-size="12"># Auth Module</text><text x="1005" y="565" fill="#5E5E5B" font-size="12">Legacy auth uses...</text>
+  <!-- Bottom Terminal -->
+  <rect x="288" y="700" width="1060" height="200" fill="#18181B" stroke="#2A2A2D" stroke-width="1"/>
+  <text x="310" y="725" fill="#8A8A87" font-size="12">Terminal • 2 tabs • bun test running</text>
+  <text x="310" y="745" fill="#3ECF4A" font-size="12">$ bun test • 2 passing</text>
+  <text x="310" y="765" fill="#CBCBC8" font-size="12">✓ auth.test.ts • ✓ jwt.test.ts</text>
+  <!-- StatusBar -->
+  <rect x="0" y="876" width="1600" height="24" fill="#1F1F22" stroke="#2A2A2D"/><text x="60" y="891" fill="#8A8A87" font-size="11">main • Claude 4 Sonnet • Build • 12.4k tokens • Working</text>
+</svg>

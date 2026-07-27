@@ -1,0 +1,388 @@
+/**
+ * HDS — HeniossAI Design System
+ * AI-First token layer | Zero runtime modification | Visual reconstruction only
+ * Compliant with Non-Negotiable Architectural Contract
+ * Extends existing theme.css with new Presentation-layer domains, existing domains untouched per I-BACKWARD
+ * All tokens achievable via layout, visual hierarchy, spacing, design system, component styling, motion, typography, color, icons, IA, workspace organization
+ */
+
+:root {
+  /* === Spacing 4px base (existing --spacing 0.25rem preserved) === */
+  --hds-spacing-0: 0;
+  --hds-spacing-0-5: 2px;
+  --hds-spacing-1: 4px;
+  --hds-spacing-1-5: 6px;
+  --hds-spacing-2: 8px;
+  --hds-spacing-3: 12px;
+  --hds-spacing-4: 16px;
+  --hds-spacing-5: 20px;
+  --hds-spacing-6: 24px;
+  --hds-spacing-8: 32px;
+  --hds-spacing-10: 40px;
+  --hds-spacing-12: 48px;
+
+  /* === Radius === */
+  --hds-radius-4: 4px;   /* tree nodes, menu items */
+  --hds-radius-6: 6px;   /* buttons, inputs */
+  --hds-radius-8: 8px;   /* panels, cards, docks */
+  --hds-radius-12: 12px; /* dialogs, popovers */
+  --hds-radius-full: 9999px; /* pills, badges */
+
+  /* === Motion === */
+  --hds-motion-fast: 120ms;
+  --hds-motion-normal: 160ms;
+  --hds-motion-slow: 180ms;
+  --hds-motion-panel: 240ms;
+  --hds-ease-default: ease-out;
+  --hds-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+  --hds-ease-spring: linear(
+    0, 0.002, 0.01 0.9%, 0.038 1.8%, 0.156 3.6%, 0.312 5.3%, 0.654 8.2%, 0.862 9.9%,
+    1.01 11.8%, 1.098 13.7%, 1.149 15.6%, 1.17 17.4%, 1.166 19.4%, 1.117 22.8%, 0.954 29.1%,
+    0.907 32%, 0.876 34.8%, 0.865 37.6%, 0.871 40.6%, 0.905 43.7%, 1.05 51.2%, 1.095 55.6%,
+    1.099 60.2%, 1.066 66.2%, 0.982 80.6%, 1
+  );
+
+  /* === AI-First Weights (visual hierarchy only) === */
+  --hds-weight-primary: 530;   /* session titles, review tabs, composer actions */
+  --hds-weight-secondary: 440; /* file tree names, preview filenames */
+  --hds-font-size-primary: 14px; /* timeline messages */
+  --hds-font-size-secondary: 13px; /* file tree, preview */
+  --hds-font-size-tertiary: 12px; /* metadata, time, secondary tabs */
+  --hds-font-size-micro: 11px; /* uppercase labels RECENT TODAY */
+
+  /* === Backgrounds Dark | Light — Stone matte, no pure black/white === */
+  --hds-bg-deep-dark: #121214;
+  --hds-bg-deep-light: #F8F8F5;
+  --hds-bg-base-dark: #18181B;
+  --hds-bg-base-light: #FCFCFB;
+  --hds-bg-layer-01-dark: #1F1F22;
+  --hds-bg-layer-01-light: #FFFFFF;
+  --hds-bg-layer-02-dark: #262629;
+  --hds-bg-layer-02-light: #F3F3F1;
+  --hds-bg-layer-03-dark: #2E2E31;
+  --hds-bg-layer-03-light: #EBEBE8;
+  --hds-bg-overlay-dark: rgba(24, 24, 27, 0.6);
+  --hds-bg-overlay-light: rgba(252, 252, 251, 0.7);
+
+  /* Semantic mapping via light-dark() */
+  --hds-bg-deep: light-dark(var(--hds-bg-deep-light), var(--hds-bg-deep-dark));
+  --hds-bg-base: light-dark(var(--hds-bg-base-light), var(--hds-bg-base-dark));
+  --hds-bg-layer-01: light-dark(var(--hds-bg-layer-01-light), var(--hds-bg-layer-01-dark));
+  --hds-bg-layer-02: light-dark(var(--hds-bg-layer-02-light), var(--hds-bg-layer-02-dark));
+  --hds-bg-layer-03: light-dark(var(--hds-bg-layer-03-light), var(--hds-bg-layer-03-dark));
+
+  /* === Text === */
+  --hds-text-strong-dark: #F4F4F3;
+  --hds-text-strong-light: #171717;
+  --hds-text-base-dark: #CBCBC8;
+  --hds-text-base-light: #3A3A38;
+  --hds-text-muted-dark: #8A8A87;
+  --hds-text-muted-light: #6F6F6C;
+  --hds-text-faint-dark: #5E5E5B;
+  --hds-text-faint-light: #9A9A96;
+  --hds-text-weak-dark: #3E3E3B;
+  --hds-text-weak-light: #C7C7C3;
+
+  --hds-text-strong: light-dark(var(--hds-text-strong-light), var(--hds-text-strong-dark));
+  --hds-text-base: light-dark(var(--hds-text-base-light), var(--hds-text-base-dark));
+  --hds-text-muted: light-dark(var(--hds-text-muted-light), var(--hds-text-muted-dark));
+  --hds-text-faint: light-dark(var(--hds-text-faint-light), var(--hds-text-faint-dark));
+  --hds-text-weak: light-dark(var(--hds-text-weak-light), var(--hds-text-weak-dark));
+
+  /* === Borders === */
+  --hds-border-base-dark: #2A2A2D;
+  --hds-border-base-light: #E8E8E5;
+  --hds-border-strong-dark: #3A3A3D;
+  --hds-border-strong-light: #D4D4D1;
+  --hds-border-weak-dark: #232326;
+  --hds-border-weak-light: #EDEDEA;
+
+  --hds-border-base: light-dark(var(--hds-border-base-light), var(--hds-border-base-dark));
+  --hds-border-strong: light-dark(var(--hds-border-strong-light), var(--hds-border-strong-dark));
+  --hds-border-weak: light-dark(var(--hds-border-weak-light), var(--hds-border-weak-dark));
+  --hds-border-focus: #2A5FFF; /* Henioss Cobalt — sole accent */
+
+  /* === Interactive — Henioss Cobalt #2A5FFF === */
+  --hds-interactive-base: #2A5FFF;
+  --hds-interactive-hover: #1F4DE8;
+  --hds-interactive-active: #1A42C7;
+  --hds-interactive-faint-dark: rgba(42, 95, 255, 0.12);
+  --hds-interactive-faint-light: rgba(42, 95, 255, 0.08);
+  --hds-interactive-faint: light-dark(var(--hds-interactive-faint-light), var(--hds-interactive-faint-dark));
+  --hds-interactive-weak-dark: rgba(42, 95, 255, 0.08);
+  --hds-interactive-weak-light: rgba(42, 95, 255, 0.05);
+  --hds-interactive-weak: light-dark(var(--hds-interactive-weak-light), var(--hds-interactive-weak-dark));
+
+  /* === Semantic === */
+  --hds-success: light-dark(#17872D, #3ECF4A);
+  --hds-warning: light-dark(#A66A00, #F5B83A);
+  --hds-critical: light-dark(#C81E1E, #FF4D4D);
+  --hds-info: light-dark(#0F6ECD, #4DA6FF);
+
+  --hds-diff-add-bg-dark: #153D1F;
+  --hds-diff-add-bg-light: #E3F9E5;
+  --hds-diff-add-border: #2A7A3A;
+  --hds-diff-add-text-dark: #3ECF4A;
+  --hds-diff-add-text-light: #17872D;
+
+  --hds-diff-del-bg-dark: #4A1515;
+  --hds-diff-del-bg-light: #FCE8E6;
+  --hds-diff-del-border: #8A2A2A;
+  --hds-diff-del-text-dark: #FF8A8A;
+  --hds-diff-del-text-light: #C81E1E;
+
+  --hds-diff-mod-bg-dark: #4A3A15;
+  --hds-diff-mod-bg-light: #FEF3C7;
+  --hds-diff-mod-border: #8A6A2A;
+  --hds-diff-mod-text-dark: #F5B83A;
+  --hds-diff-mod-text-light: #A66A00;
+
+  /* === Avatar Palette Desaturated Professional (6) === */
+  --hds-avatar-pink-bg-dark: #2A1F26;
+  --hds-avatar-pink-text-dark: #E8A8C8;
+  --hds-avatar-pink-bg-light: #FDF0F6;
+  --hds-avatar-pink-text-light: #B01A6B;
+
+  --hds-avatar-mint-bg-dark: #1F2624;
+  --hds-avatar-mint-text-dark: #8ED8C3;
+  --hds-avatar-mint-bg-light: #E6FBF3;
+  --hds-avatar-mint-text-light: #147D6F;
+
+  --hds-avatar-orange-bg-dark: #29221F;
+  --hds-avatar-orange-text-dark: #E3A070;
+  --hds-avatar-orange-bg-light: #FEF3EB;
+  --hds-avatar-orange-text-light: #C05300;
+
+  --hds-avatar-purple-bg-dark: #25212A;
+  --hds-avatar-purple-text-dark: #C2A8E8;
+  --hds-avatar-purple-bg-light: #F5F0FD;
+  --hds-avatar-purple-text-light: #8445BC;
+
+  --hds-avatar-cyan-bg-dark: #1F2628;
+  --hds-avatar-cyan-text-dark: #8ACED8;
+  --hds-avatar-cyan-bg-light: #E6F8FB;
+  --hds-avatar-cyan-text-light: #0A7A8A;
+
+  --hds-avatar-lime-bg-dark: #232A1F;
+  --hds-avatar-lime-text-dark: #A8C86A;
+  --hds-avatar-lime-bg-light: #EFF8E3;
+  --hds-avatar-lime-text-light: #5D770D;
+
+  /* === Layout Metrics AI-First === */
+  --hds-activity-bar-width: 48px;
+  --hds-sidebar-width: 240px; /* AI-first narrower than old 280 to give more to timeline */
+  --hds-sidebar-min: 200px;
+  --hds-sidebar-max: 600px;
+  --hds-main-min: 600px; /* timeline primary larger */
+  --hds-auxiliary-width: 360px; /* Review/Context primary 360 vs old Preview 420, smaller but primary weight via typography */
+  --hds-auxiliary-min: 200px;
+  --hds-auxiliary-max: 600px;
+  --hds-preview-secondary-width: 360px; /* file preview secondary muted */
+  --hds-terminal-height: 200px;
+  --hds-terminal-min: 100px;
+  --hds-terminal-max: 60vh;
+  --hds-titlebar-height: 36px;
+  --hds-statusbar-height: 24px;
+  --hds-resize-handle: 4px;
+  --hds-resize-hit: 12px;
+
+  /* === AI vs File Weighting === */
+  --hds-timeline-gap: 12px; /* breathing for AI messages */
+  --hds-file-tree-gap: 0px; /* dense file tree secondary */
+  --hds-session-title-size: 14px;
+  --hds-session-title-weight: 530;
+  --hds-file-name-size: 13px;
+  --hds-file-name-weight: 440;
+  --hds-file-name-color: var(--hds-text-muted); /* secondary muted */
+  --hds-session-name-color: var(--hds-text-base); /* primary base */
+}
+
+/* Dark mode overrides via prefers-color-scheme — ThemeProvider also handles but CSS fallback */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+  }
+}
+
+/* === HDS Component Primitives — Presentation Layer only, no runtime === */
+
+/* Activity Bar — 48px fixed AI modes first */
+[data-component="hds-activity-bar"] {
+  width: var(--hds-activity-bar-width);
+  min-width: var(--hds-activity-bar-width);
+  background: var(--hds-bg-deep);
+  border-right: 1px solid var(--hds-border-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--hds-spacing-2) 0;
+  gap: var(--hds-spacing-2);
+  user-select: none;
+}
+
+[data-component="hds-activity-bar"] [data-slot="top-group"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hds-spacing-1);
+  flex: 1;
+}
+
+[data-component="hds-activity-bar"] [data-slot="bottom-group"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hds-spacing-1);
+}
+
+[data-component="hds-activity-item"] {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--hds-radius-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hds-text-muted);
+  cursor: pointer;
+  position: relative;
+  transition: background var(--hds-motion-fast) var(--hds-ease-default),
+              color var(--hds-motion-fast) var(--hds-ease-default);
+}
+
+[data-component="hds-activity-item"]:hover {
+  background: var(--hds-bg-layer-02);
+  color: var(--hds-text-base);
+}
+
+[data-component="hds-activity-item"][data-active="true"] {
+  background: var(--hds-bg-layer-03);
+  color: var(--hds-text-strong);
+}
+
+[data-component="hds-activity-item"][data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 16px;
+  background: var(--hds-interactive-base);
+  border-radius: var(--hds-radius-full);
+}
+
+/* AI-First: Sessions first visually heavier */
+[data-component="hds-activity-item"][data-kind="sessions"] {
+  /* sessions icon gets primary weight */
+}
+
+/* Sidebar — 240px AI-first Sessions first Projects second muted */
+[data-component="hds-sidebar"] {
+  width: var(--hds-sidebar-width);
+  min-width: var(--hds-sidebar-min);
+  max-width: var(--hds-sidebar-max);
+  background: var(--hds-bg-base);
+  border-right: 1px solid var(--hds-border-base);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Timeline AI primary gap 12 */
+[data-component="session-timeline-ai"] {
+  gap: var(--hds-timeline-gap);
+}
+
+/* File tree secondary muted */
+[data-component="file-tree-secondary"] [data-slot="file-tree-v2-row"] {
+  color: var(--hds-file-name-color);
+  font-size: var(--hds-file-name-size);
+  font-weight: var(--hds-file-name-weight);
+}
+
+[data-component="file-tree-secondary"] [data-slot="file-tree-v2-row"]:hover {
+  color: var(--hds-text-base);
+  background: var(--hds-bg-layer-02);
+}
+
+/* Sessions primary heavier */
+[data-component="sessions-primary"] [data-slot="session-item-title"] {
+  font-size: var(--hds-session-title-size);
+  font-weight: var(--hds-session-title-weight);
+  color: var(--hds-session-name-color);
+}
+
+/* Composer elevated primary input of entire app */
+[data-component="hds-composer"] {
+  background: var(--hds-bg-layer-01);
+  border: 1px solid var(--hds-border-base);
+  border-radius: var(--hds-radius-12);
+  box-shadow: var(--shadow-xs-border-base);
+  transition: border-color var(--hds-motion-fast) var(--hds-ease-default),
+              box-shadow var(--hds-motion-fast) var(--hds-ease-default);
+}
+
+[data-component="hds-composer"]:focus-within {
+  border-color: var(--hds-border-focus);
+  box-shadow: var(--shadow-xs-border-focus);
+}
+
+/* Context chips explicit high contrast interactive-faint border interactive-weak */
+[data-slot="context-chip"] {
+  background: var(--hds-interactive-faint);
+  border: 1px solid var(--hds-interactive-weak);
+  border-radius: var(--hds-radius-full);
+  padding: 2px 8px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--hds-text-base);
+}
+
+/* Docks elevated bg-layer-01 border base rounded 8 shadow-xs */
+[data-component="hds-dock"] {
+  background: var(--hds-bg-layer-01);
+  border: 1px solid var(--hds-border-base);
+  border-radius: var(--hds-radius-8);
+  box-shadow: var(--shadow-xs);
+  padding: 12px;
+}
+
+/* Review tab primary 14 medium vs Preview secondary 12 muted */
+[data-slot="review-tab-trigger"] {
+  font-size: 14px;
+  font-weight: 530;
+  color: var(--hds-text-base);
+}
+
+[data-slot="preview-tab-trigger-secondary"] {
+  font-size: 12px;
+  font-weight: 440;
+  color: var(--hds-text-muted);
+}
+
+/* Preview content secondary muted opacity 90% vs Review 100% */
+[data-component="preview-secondary"] {
+  opacity: 0.9;
+}
+
+[data-component="review-primary"] {
+  opacity: 1;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-component="hds-activity-bar"],
+  [data-component="hds-sidebar"],
+  [data-component="hds-composer"],
+  [data-slot="context-chip"] {
+    transition: none !important;
+    animation: none !important;
+  }
+}
