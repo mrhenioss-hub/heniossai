@@ -16,6 +16,7 @@ import { HomeProjectsView } from "@/pages/home/home-projects-view"
 import { HomeSessionsView } from "@/pages/home/home-sessions-view"
 import { CollapsibleSection } from "./explorer-sections"
 import { HdsEmptyState, HdsErrorState, HdsLoadingState } from "@/components/hds-states"
+import { Spinner } from "@opencode-ai/ui/spinner"
 
 export interface FileEntry {
   path: string
@@ -224,7 +225,7 @@ export function ExplorerPanel(): JSX.Element {
                     fallback={<ErrorState message="Failed to load project files" onRetry={() => void refetchRoot()} />}
                   >
                     <Show when={(treeCache[activeDir()!] ?? []).length > 0} fallback={<EmptyState message="Folder is empty" />}>
-                      <div class="flex flex-col gap-0.5">
+                      <div class="flex flex-col">
                         <For each={filterItems(treeCache[activeDir()!] ?? [])}>
                           {(item) => (
                             <TreeItem
@@ -244,6 +245,14 @@ export function ExplorerPanel(): JSX.Element {
                     </Show>
                   </Show>
                 </Show>
+              </div>
+              {/*
+                Blueprint 8.15 / DD-3: names the file tree as a secondary tool.
+                Teaches the product's own model - files appear when the mission
+                needs them - in five words. Static label; no behaviour.
+              */}
+              <div class="hds-explorer-secondary-label" title="Files appear when the mission needs them">
+                Files — Secondary Tool
               </div>
             </Show>
           </Show>
@@ -351,12 +360,15 @@ function TreeItem(props: TreeItemProps): JSX.Element {
           role="treeitem"
           aria-expanded={isDir() ? isExpanded() : undefined}
           aria-selected={isActive()}
-          class="flex items-center gap-1.5 w-full px-2 py-1 rounded-[4px] text-left hover:bg-v2-overlay-simple-overlay-hover transition-colors cursor-pointer"
+          class="relative flex items-center w-full text-left cursor-pointer"
           classList={{
-            "bg-v2-background-bg-layer-03 text-v2-text-text-base [font-weight:530]": isActive(),
-            "text-v2-text-text-muted": !isActive(),
+            "hds-tree-row": true,
+            "hds-tree-row--active": isActive(),
           }}
-          style={{ "padding-left": `${Math.max(8, props.level * 8 + 8)}px` }}
+          style={{
+            // Blueprint 8.5: indent 8 + 12 per level (was 8 + 8).
+            "padding-left": `${Math.max(8, props.level * 12 + 8)}px`,
+          }}
           onClick={() => {
             if (isDir()) {
               props.onToggleDir(props.item.path)
@@ -368,13 +380,14 @@ function TreeItem(props: TreeItemProps): JSX.Element {
           <Show when={isDir()}>
             <Icon
               name={isExpanded() ? "chevron-down" : "chevron-right"}
-              class="w-3.5 h-3.5 shrink-0 text-v2-icon-icon-muted"
+              class="shrink-0"
+              style={{ width: "12px", height: "12px", color: "var(--hds-text-faint)" }}
             />
           </Show>
           <FileIcon node={props.item} expanded={isExpanded()} class="w-4 h-4 shrink-0" />
-          <span class="truncate text-[13px] [font-weight:440] flex-1">{fileName()}</span>
+          <span data-slot="hds-tree-name" class="truncate flex-1">{fileName()}</span>
           <Show when={isLoading()}>
-            <Icon name="spinner" class="w-3 h-3 shrink-0 animate-spin text-v2-icon-icon-muted" />
+            <Spinner class="shrink-0" style={{ width: "12px", height: "12px", color: "var(--hds-text-faint)" }} />
           </Show>
         </ContextMenu.Trigger>
         <ContextMenu.Portal>
