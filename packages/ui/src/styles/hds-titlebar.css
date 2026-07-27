@@ -1,0 +1,59 @@
+/**
+ * HDS — Titlebar tabs (Blueprint §8.6; Phase H)
+ *
+ * ============================================================================
+ * SCOPE IS DELIBERATELY NARROW
+ * ============================================================================
+ * Phase H was rated MEDIUM-HIGH risk in the Validation Package because the
+ * titlebar carries platform-critical behaviour: the Tauri drag region, the
+ * Windows zoom counter-scaling, safe-area insets and per-platform window
+ * controls. Six references to those exist in titlebar.tsx.
+ *
+ * NONE of them are touched. This file does not alter titlebar height, padding,
+ * drag regions, zoom handling, safe-area insets, window controls, portal
+ * targets, the tab strip's scroll-timeline fades, or any behaviour.
+ *
+ * On audit the tab geometry was found to ALREADY match the Blueprint:
+ *   h-7 (28px) in a 36px strip, radius 6px, bg-layer-02 on active/hover.
+ * So the only real gap against Blueprint §8.6 was the missing active
+ * indicator. That is all this file adds.
+ *
+ * BOUNDARY: styles only [data-slot="titlebar-tab-item"], an attribute that
+ * already exists (titlebar-tab-nav.tsx:203, :359). No .tsx edits, no new nodes,
+ * no runtime involvement {I-RUNTIME} {I-BACKWARD}.
+ *
+ * CASCADE: the tab background is set with Tailwind arbitrary utilities on the
+ * element, so this file is imported UNLAYERED from titlebar.tsx directly after
+ * titlebar.css. An `@layer components` rule would be outranked by those
+ * utilities and silently do nothing — the trap already hit in Phases G and F.
+ * The indicator below uses ::after rather than a background, so it does not
+ * compete with the --tab-bg utility at all.
+ */
+
+/*
+ * Blueprint §8.6 / Rule B-3: the 2px cobalt bar is the single active indicator
+ * used by every tab species in the product. On mission tabs it sits at the
+ * bottom edge, inset to match the 6px corner radius.
+ *
+ * ::after is used so the tab's own --tab-bg utility keeps working untouched,
+ * and so no layout box changes — the indicator is painted, never laid out, and
+ * cannot shift the tab strip or affect the scroll-timeline fades.
+ */
+[data-slot="titlebar-tab-item"][data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 0;
+  height: 2px;
+  border-radius: var(--hds-radius-full);
+  background: var(--hds-interactive-base);
+  pointer-events: none;
+}
+
+/* Forced-colors: let the OS palette express selection instead. */
+@media (forced-colors: active) {
+  [data-slot="titlebar-tab-item"][data-active="true"]::after {
+    display: none;
+  }
+}
