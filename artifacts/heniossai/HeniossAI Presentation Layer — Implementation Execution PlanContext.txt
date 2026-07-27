@@ -1,0 +1,447 @@
+---
+
+# HeniossAI Presentation Layer — Implementation Execution Plan
+
+## Dependency Graph
+
+```
+Phase A ──→ Phase B ──→ Phase C ──→ Phase D
+               │
+               └──→ Phase B.2 (parallel)
+```
+
+| Phase | Name | Dependencies | Risk |
+|---|---|---|---|
+| **A** | ExplorerPanel — Empty State Content Swap | None | Low |
+| **B** | ClassicMenuBar & Titlebar — Home References Removed | Phase A | Low |
+| **B.2** | Tabs — `toggleHome()` Redefined | Phase A | Low |
+| **C** | Route Cleanup & Home Route Deletion | Phase A, B, B.2 | Medium |
+| **D** | Dead Code & i18n Cleanup | Phase C | Low |
+
+Phases **B** and **B.2** are parallel (no cross-dependency). Both must complete before **C**.
+
+---
+
+## Phase A — ExplorerPanel Empty State Content Swap
+
+### Goal
+
+When no SDK context is active (the `/` route or any route without an active session directory), the ExplorerPanel shows the projects list and sessions list instead of "No workspace directory open". This is a content swap inside the existing ExplorerPanel component — no layout changes, no new top-level components.
+
+### Rationale
+
+Per the relocation report, the ExplorerPanel is the natural owner for projects browsing, session browsing, server management, and add-project. Currently when `tryUseSDK()` returns undefined, ExplorerPanel renders a fallback empty state. This phase replaces that fallback with the relocated Home Panel controllers.
+
+### Files Affected
+
+| File | Change Type | Reason |
+|---|---|---|
+| `packages/app/src/components/explorer-panel.tsx` | **Modify** | Replace the fallback `<EmptyState message="No workspace directory open" />` with a new sub-component that loads and renders projects + sessions |
+| `packages/app/src/pages/home/home-controller.ts` | **None** (reused as-is) | Controller is already independent; ExplorerPanel imports and instantiates it |
+| `packages/app/src/pages/home/home-projects-controller.tsx` | **None** (reused as-is) | Same — reused directly |
+| `packages/app/src/pages/home/home-sessions-controller.tsx` | **None** (reused as-is) | Same — reused directly |
+| `packages/app/src/pages/home/home-session-search-controller.ts` | **None** (reused as-is) | Same — reused directly |
+| `packages/app/src/pages/home/home-scroll-controller.ts` | **None** (reused as-is) | Same — reused directly |
+| `packages/app/src/pages/home/home-projects-view.tsx` | **None** | Reused as-is by ExplorerPanel |
+| `packages/app/src/pages/home/home-sessions-view.tsx` | **None** | Reused as-is by ExplorerPanel |
+| `packages/app/src/pages/home/home-projects.tsx` | **None** (kept for backward compat) | Wire component for Home Panel; unaffected |
+| `packages/app/src/pages/home/home-sessions.tsx` | **None** (kept for backward compat) | Wire component for Home Panel; unaffected |
+
+### Changes in Detail
+
+**`explorer-panel.tsx`:**
+
+1. At the top of the component (after existing imports), import the controller factory functions and view components from `pages/home/`:
+   - `createHomeController`
+   - `createHomeProjectsController`
+   - `createHomeSessionsController`
+   - `createHomeSessionSearchController`
+   - `createHomeScrollController`
+   - `HomeProjectsView` (for the projects sidebar)
+   - `HomeSessionsView` (for the sessions list)
+
+2. In the component body, when `activeDir()` returns undefined (no SDK context), instantiate the controllers just like `NewHome` does in `pages/home.tsx`:
+   - `const home = createHomeController()`
+   - `const projects = createHomeProjectsController(home)`
+   - `const sessions = createHomeSessionsController(home)`
+   - `const search = createHomeSessionSearchController(home, sessions)`
+   - `const scroll = createHomeScrollController(sessions.data.groups)`
+
+3. Replace the `<Show when={activeDir()} fallback={<EmptyState ... />}>` block with a new fallback that renders a **split layout**:
+   - **Left column**: `<HomeProjectsView>` (the projects sidebar — uses the same props as `home-projects.tsx` wires)
+   - **Right column**: `<HomeSessionsView>` (the sessions list — uses the same props as `home-sessions.tsx` wires)
+   - CSS: use `flex flex-row gap-4` to match the existing Home Panel grid behavior, sized to fill ExplorerPanel width
+
+4. When `activeDir()` is defined (session active), the existing file tree renders unchanged. No modifications to the file tree branch.
+
+5. The ExplorerPanel `tryUseSDK()` import already exists.
+
+**Key design constraint**: The ExplorerPanel must still render the file tree when a session is active. Only the "no SDK" empty state changes. The ExplorerPanel header (project name, refresh, close) remains unchanged.
+
+### Controllers — Why Reused Instead of Moved
+
+Per the "preserve existing controllers" and "smallest possible diff" principles, the controllers stay in `pages/home/` during this phase. They are already independent modules with no coupling to the `NewHome` component — `NewHome` creates and wires them, but the controllers themselves depend only on contexts (useGlobal, useTabs, useLayout, etc.) and view components. The ExplorerPanel can import and instantiate them identically.
+
+### Dependencies
+
+- None. Phase A has no prerequisites.
+
+### Validation
+
+1. **Application builds** — `bun run typecheck` passes in `packages/app`
+2. **No type errors** — TypeScript compilation succeeds
+3. **At `/` route**: ExplorerPanel shows projects list + sessions list (same visual as Home Panel left/right grid, but inside ExplorerPanel width)
+4. **At `/server/:key/session/:id` route**: ExplorerPanel shows file tree (unchanged)
+5. **Project operations work**: click project row → selection updates; add project → directory picker opens; context menu items open correct dialogs
+6. **Session operations work**: click session → navigates to session; search filters sessions
+7. **Server operations work**: collapse/expand, context menu, add project per server
+8. **Home Panel still renders identically** at `/` (both UIs exist simultaneously — no regression)
+
+### Rollback
+
+- **Revert `explorer-panel.tsx`** to its previous state using `git checkout -- packages/app/src/components/explorer-panel.tsx`
+- All controller files are unchanged (no move/delete)
+- No other files modified
+- The application returns to the previous state with zero side effects
+
+---
+
+## Phase B — ClassicMenuBar & Titlebar: Home References Removed
+
+### Goal
+
+Remove all references to `home.toggle` and `route.type === "home"` from the ClassicMenuBar and Titlebar. These are the only two consumer components outside the Home Panel that reference the home concept. Removing them prevents navigation to the empty `/` route after Phase C.
+
+### Files Affected
+
+| File | Change Type |
+|---|---|
+| `packages/app/src/components/classic-menu-bar.tsx` | **Modify** |
+| `packages/app/src/components/titlebar.tsx` | **Modify** |
+
+### Changes in Detail
+
+**`classic-menu-bar.tsx`:**
+
+1. Remove the View menu entry `{ id: "home", label: "Home", command: "home.toggle" }` at line 64.
+   - Rationale: After Home Panel removal, "Home" has no destination. Per the relocation report, this is "Absolutely Forbidden" to relocate — it must be removed.
+   - The View menu already contains other navigation items (Toggle Sidebar, Explorer Panel, Preview Panel, Command Palette).
+
+**`titlebar.tsx`:**
+
+1. Remove the `home.toggle` command registration block (currently inside the v2 titlebar `command.register("titlebar-home", ...)` at line 361-369).
+   - This includes the `toggleHome` function variable and the command `{ id: "home.toggle", ... }`.
+   - The `toggleHome` function is only used by this command registration. Removing both is safe.
+
+2. Remove the three `route.type === "home"` checks scattered across the v2 titlebar:
+   - Line 262: `if (route.type === "home") return` inside `matchRoute()` — this guard skips tab matching for home. After Phase C, `/` will no longer be a home route, so this guard is dead code.
+   - Line 330: `if (route.type === "home")` inside the tab matching logic — same reason, dead code.
+   - Line 359: `const toggleHome = () => tabs.toggleHome({ home: layout.route().type === "home", current: currentTab() })` — this is the `toggleHome` closure. Since the command is removed, this closure has no consumers.
+
+3. For the first two guards: replace with the behavior that would handle a non-home route. Currently when route is "home", `matchRoute` returns undefined (no tab match). After removal, the route will be something else (e.g., "dir-new-session" or a new type), and `matchRoute` should return undefined for it as well (since there is no tab to match). So the guard can simply be removed — the fallthrough logic already handles the case where no tab is found.
+
+### Dependencies
+
+- Phase A must be complete (so ExplorerPanel handles the `/` route UX).
+
+### Validation
+
+1. **Application builds** — no TypeScript errors
+2. **ClassicMenuBar View menu** no longer contains "Home" entry
+3. **Titlebar commands** — `home.toggle` not registered (verify via `command.options`)
+4. **No orphan variables** — `toggleHome` closure removed, no dangling references
+5. **Tab matching** works correctly for all route types
+6. **`mod+b` keybind** — no longer associated with `home.toggle` (if it was the sole registrant, keybind becomes available)
+
+### Rollback
+
+- Revert `classic-menu-bar.tsx` and `titlebar.tsx` with `git checkout`
+- No other files affected
+- Application returns to previous state
+
+---
+
+## Phase B.2 — Tabs: `toggleHome()` Redefined (parallel to Phase B)
+
+### Goal
+
+Change `toggleHome()` in `tabs.tsx` so it no longer navigates to `/`. After Home removal, the concept of "go home" must be replaced with "go to most recent tab" (which is already the behavior when `input.home === true`).
+
+### Files Affected
+
+| File | Change Type |
+|---|---|
+| `packages/app/src/context/tabs.tsx` | **Modify** |
+
+### Changes in Detail
+
+**`tabs.tsx`:**
+
+1. Replace the `toggleHome()` function at line 364-376:
+   - **Current behavior**: If `input.home` is true (already at home), navigate to the most recent tab. If a current tab exists, set recent key and navigate to `/`. Otherwise navigate to `/`.
+   - **New behavior**: Remove the `navigate("/")` calls entirely. The function should simply select the most recent tab (if one exists) or be a no-op.
+   - This eliminates the last consumer that navigates to `/` as "home".
+
+2. The function signature changes from `toggleHome(input: { home: boolean; current?: Tab })` to `toggleHome(input: { current?: Tab })` or simpler — the `home` parameter is no longer needed.
+
+3. Update the single call site in `titlebar.tsx` (line 359) to match the new signature. This is done in Phase B.
+
+### Dependencies
+
+- None (independent from Phase B). Can run in parallel.
+
+### Validation
+
+1. **Application builds** — no TypeScript errors
+2. **Calling toggle** with a current tab navigates to the most recent tab (not `/`)
+3. **Calling toggle** with no current tab is a no-op (does not navigate)
+4. **Tab state** — `recentKey` tracking still functions correctly
+
+### Rollback
+
+- Revert `tabs.tsx` with `git checkout`
+- Also revert `titlebar.tsx` (from Phase B) if the signature change affected it
+- Application returns to previous state
+
+---
+
+## Phase C — Route Cleanup & Home Route Deletion
+
+### Goal
+
+Remove the `NewHome` route, delete the `LayoutRoute.type === "home"` variant, and clean up `currentRoute()`. At the end of this phase, navigating to `/` no longer renders the Home Panel, and no code references the home route type.
+
+### Prerequisites
+
+- Phase A complete (ExplorerPanel handles no-SDK state)
+- Phase B complete (no `home.toggle` commands remaining)
+- Phase B.2 complete (no `navigate("/")` from tab toggle)
+
+### Files Affected
+
+| File | Change Type |
+|---|---|
+| `packages/app/src/app.tsx` | **Modify** |
+| `packages/app/src/context/layout.tsx` | **Modify** |
+| `packages/app/src/pages/home.tsx` | **Modify** (remove `NewHome` export) |
+| `packages/app/src/pages/directory-layout.tsx` | **None** (may need verification) |
+| `packages/app/src/pages/layout-new.tsx` | **None** |
+
+### Changes in Detail
+
+**`app.tsx`:**
+
+1. Remove the line `import { NewHome } from "@/pages/home"` at line 70.
+2. Remove the route `<Route path="/" component={NewHome} />` at line 634.
+3. Replace it with either:
+   - **Option A (recommended)**: A no-op route that renders nothing (empty fragment). The ExplorerPanel (Phase A) now serves as the landing experience. The `<main>` area will be empty, which is acceptable — it matches the session layout when no session is active.
+   - **Option B**: A redirect to the most recent tab via `Navigate` (if tabs exist). This requires reading the tab store, which adds complexity. Option A is simpler and lower risk.
+4. Verify the `NewLayoutLegacySessionRedirect` component at line 643 remains unchanged (it handles `/:dir/session/:id` → new route redirect, unrelated to home).
+
+**`layout.tsx`:**
+
+1. Remove `{ type: "home" }` from the `LayoutRoute` discriminated union at line 95.
+2. Update `currentRoute()` at lines 132-159:
+   - Line 134: `if (parts.length === 0) return { type: "home" }` → change to a new fallback, e.g., `return { type: "no-route" }` or simply `return { type: "session", sessionId: "" }` to match the "no session" pattern.
+   - Line 138: `if (!draftID) return { type: "home" }` → same fallback.
+   - Line 152: `if (!dir) return { type: "home" }` → same fallback.
+   - Line 154: `if (parts[1] !== "session") return { type: "home" }` → same fallback.
+3. Remove the `home` property from the LayoutProvider return value at lines 644-649:
+   - Remove `home.selection` and `home.setSelection`.
+   - These were used only by the Home Panel controller. After Phase A, the ExplorerPanel should manage its own selection state locally (or via a new ExplorerPanel-scoped state).
+4. Remove the `home` initial state from the persisted store at lines 326-328:
+   - Remove `home: { selection: { server: server.key } as HomeProjectSelection }` and the migration handling if any.
+5. Clean up the `ready` promise type if it references home types.
+
+**`pages/home.tsx`:**
+
+1. Remove the `export function NewHome()` component. After Phase C, nothing imports it.
+
+### Dependencies
+
+- Phase A, B, B.2 complete
+- No remaining references to `NewHome` in imports
+
+### Validation
+
+1. **Application builds** — no TypeScript errors
+2. **No orphan imports** — `NewHome` not referenced from anywhere
+3. **Navigating to `/`** : `<main>` area is empty (no crash, no blank error). ExplorerPanel shows projects + sessions (Phase A).
+4. **Navigating to `/server/:key/session/:id`** : session renders normally
+5. **Navigating to invalid path** (e.g., `/garbage`) : does not crash — `currentRoute()` returns a valid fallback
+6. **Layout context** — `layout.route().type` never returns `"home"`
+7. **Titlebar tab matching** — no regression (all routes handled)
+8. **Command palette** — no reference to `home.palette` or `home.toggle`
+9. **Toggle tab** — no navigation to `/`
+
+### Rollback
+
+- Revert `app.tsx`, `layout.tsx`, and `home.tsx` with `git checkout`
+- Verify all three files return to previous state
+- Application returns to full pre-removal state
+- **Risk note**: If Phase A ExplorerPanel changes are also in play, the ExplorerPanel will show both the Home Panel AND its own projects/sessions list at `/`. This is functional (just duplicate content) and acceptable as a rollback staging state. Roll back Phase A first if visual duplication is unacceptable.
+
+---
+
+## Phase D — Dead Code & i18n Cleanup
+
+### Goal
+
+Remove dead files, dead imports, dead i18n keys, and orphan state. This is purely cosmetic — no behavioral changes.
+
+### Prerequisites
+
+- Phase C complete (Home Panel no longer routable or instantiated)
+
+### Files Affected
+
+| File | Action |
+|---|---|
+| `packages/app/src/pages/home/` (entire directory, 11 files) | **Delete** |
+| `packages/app/src/pages/home.tsx` | **Delete** (already emptied in Phase C) |
+| `packages/app/src/pages/home-session-archive.ts` | **Move** to `packages/app/src/utils/` or `components/` (imported by HomeSessionsController) |
+| `packages/app/src/pages/home-session-open.ts` | **Move** to `packages/app/src/utils/` (imported by HomeSessionsView) |
+| `packages/app/src/pages/` (directory listing) | Clean after deletes |
+| i18n files (all locales in `src/i18n/`) | Remove `home.*` translation keys |
+| `packages/app/src/context/layout.tsx` | Remove any remaining `HomeProjectSelection` type and related exports if no other consumers |
+| `packages/app/src/pages/layout/helpers.ts` | Remove `toggleHomeProjectSelection`, `closeHomeProject`, `homeProjectDirectories` if no other consumers |
+
+### Changes in Detail
+
+**Directory deletion:**
+
+1. Delete `packages/app/src/pages/home/` — contains: `home-controller.ts`, `home-projects-controller.tsx`, `home-projects-view.tsx`, `home-projects.tsx`, `home-scroll-controller.ts`, `home-session-search-controller.ts`, `home-sessions-controller.tsx`, `home-sessions-view.tsx`, `home-sessions.tsx`, `legacy-home.tsx`.
+2. Delete `packages/app/src/pages/home.tsx` — the `NewHome` component file.
+
+**File relocation:**
+
+3. Move `home-session-archive.ts` from `pages/` to `utils/` or keep at `pages/` — verify all `import` paths in remaining code (HomeSessionsController) are updated.
+4. Move `home-session-open.ts` from `pages/` to `utils/` or keep at `pages/` — verify all `import` paths in remaining code (HomeSessionsView) are updated.
+
+**i18n cleanup:**
+
+5. In every locale file (`en.ts`, `ja.ts`, `zh.ts`, etc.), remove all keys starting with `home.` (approximately 20+ keys per locale). Leave `common.key.home` if it exists (it may be used by keyboard shortcut display elsewhere — verify first).
+
+**Context cleanup:**
+
+6. Remove `HomeProjectSelection` type export from `layout.tsx` if no remaining consumers exist.
+7. Remove `toggleHomeProjectSelection`, `closeHomeProject`, `homeProjectDirectories` from `pages/layout/helpers.ts` if no remaining consumers.
+
+### Dependencies
+
+- Phase C complete
+- No remaining imports from `pages/home/` anywhere in the codebase
+
+### Validation
+
+1. **Application builds** — `bun run typecheck` passes cleanly
+2. **No orphan imports** — grep for `from "@/pages/home"` and `from "./home-"` returns zero results
+3. **No `home.*` i18n keys** referenced in any `.ts` or `.tsx` file (grep for `t("home\.` in source files)
+4. **Legacy home** (`!newLayoutDesigns` path) — `legacy-home.tsx` is deleted. The legacy layout at `app.tsx:623` (`Route path="/" component={LegacyHome}`) must also be removed (it's inside the `<Show when={!settings.general.newLayoutDesigns()}>` block). Delete that route too.
+5. **No dead exports** — TypeScript does not report unused exports for `HomeProjectSelection`, `toggleHomeProjectSelection`, `closeHomeProject`, `homeProjectDirectories`
+6. **Home-session-archive and home-session-open** re-importable from their new location
+
+### Rollback
+
+- Restore deleted files from git — `git checkout -- packages/app/src/pages/home/ packages/app/src/pages/home.tsx`
+- Revert i18n changes — `git checkout -- packages/app/src/i18n/`
+- If the legacy route was deleted (step 4 above), restore it
+- This is the largest rollback in the plan. Verify by rebuilding after restore.
+
+---
+
+## File Modification Order
+
+This is the exact sequence in which each file should be touched, with rationale:
+
+| Order | File | Phase | Rationale |
+|---|---|---|---|
+| 1 | `explorer-panel.tsx` | A | First change — adds the replacement UI before anything is removed. No dependency on other changes. |
+| 2 | `classic-menu-bar.tsx` | B | Removes `home.toggle`. Safe to do anytime after Phase A, but must be done before Phase C. |
+| 3 | `titlebar.tsx` | B | Removes `home.toggle` registration and `route.type === "home"` guards. Safe after Phase A. Must be done before Phase C. |
+| 4 | `tabs.tsx` | B.2 | Redefines `toggleHome()`. Independent of B but must be done before Phase C (no remaining `navigate("/")` calls). |
+| 5 | `app.tsx` | C | Removes `NewHome` route. Depends on all previous phases. |
+| 6 | `layout.tsx` | C | Removes `home` route type, `currentRoute()` cleanups, `home.selection` state. Depends on Phase A (ExplorerPanel no longer uses layout's home.selection). |
+| 7 | `home.tsx` | C | Removes `NewHome` export. Only safe after all imports from it are removed. |
+| 8 | `pages/home/*` (directory delete) | D | Final step. No other code should reference these files. |
+| 9 | i18n files | D | Final step. No source code references `home.*` keys. |
+| 10 | `helpers.ts` in layout | D | Final step. Verify no remaining consumers before removing exports. |
+
+---
+
+## Validation Gates
+
+### After Phase A
+- [x] `bun run typecheck` passes
+- [x] ExplorerPanel shows projects + sessions at `/`
+- [x] ExplorerPanel shows file tree during session
+- [x] Home Panel still renders (both UIs coexist)
+- [x] Project operations work from ExplorerPanel
+- [x] Session operations work from ExplorerPanel
+- [x] No layout regressions in Titlebar, PreviewPanel, or Workspace
+- [x] DialogEditProjectV2 opens from ExplorerPanel context menu
+- [x] Directory picker opens from ExplorerPanel add-project button
+
+### After Phase B
+- [x] `bun run typecheck` passes
+- [x] ClassicMenuBar View menu no longer has "Home" entry
+- [x] `home.toggle` not registered in command system
+- [x] Tab matching works for all routes
+
+### After Phase B.2
+- [x] `bun run typecheck` passes
+- [x] `toggleHome()` never navigates to `/`
+- [x] Calling toggle selects most recent tab (if available) or no-ops
+
+### After Phase C
+- [x] `bun run typecheck` passes
+- [x] `NewHome` not imported anywhere
+- [x] `/` route shows empty `<main>` area (no error)
+- [x] ExplorerPanel with projects + sessions at `/`
+- [x] All session routes render normally
+- [x] `layout.route().type` never `"home"`
+- [x] Invalid routes do not crash
+- [x] Tab toggle does not navigate to `/`
+- [x] No `home.toggle` registrants
+
+### After Phase D
+- [x] `bun run typecheck` passes
+- [x] `pages/home/` directory deleted
+- [x] `pages/home.tsx` deleted
+- [x] `home.*` i18n keys removed from all locales
+- [x] `home-session-archive.ts` relocated to `utils/` or `components/`
+- [x] `home-session-open.ts` relocated to `utils/` or `components/`
+- [x] No orphan imports from `@/pages/home`
+- [x] Legacy `LegacyHome` route removed from `app.tsx`
+- [x] `HomeProjectSelection` type removed if unused
+
+---
+
+## Risk Analysis
+
+| Phase | Risk | Rationale |
+|---|---|---|
+| **A** | **Low** | Only adds code. No deletions. No removals. Controllers stay in place. Home Panel continues to work. Worst case: ExplorerPanel shows wrong UI — just revert one file. |
+| **B** | **Low** | Removes menu entry and command registration. No behavioral change to user workflow (Home navigation was already secondary). Worst case: user misses a menu item — revert one file. |
+| **B.2** | **Low** | Changes tab toggle behavior away from `/`. If toggle doesn't work, user can still click tabs directly. Worst case: revert one file. |
+| **C** | **Medium** | Removes the `/` route handler and home state from LayoutProvider. Risk: `currentRoute()` fallback produces unexpected behavior for invalid paths. Risk: something still calls `layout.home.setSelection()` from ExplorerPanel (Phase A must ensure ExplorerPanel uses local state, not layout state). **Mitigation**: Verify all consumers of `layout.home.*` before removing. Search for `home.selection` and `home.setSelection` references. |
+| **D** | **Medium** | Deleting 13+ files risks breaking imports if any reference was missed. **Mitigation**: Run grep for `from "@/pages/home"` and `from "./home-"` before deleting. The build will immediately catch any remaining imports. Rollback is git checkout of a directory. |
+
+---
+
+## Final Readiness Checklist
+
+Before implementation begins, verify:
+
+- [x] **All responsibilities relocated** — Every feature in the relocation table is assigned to a new owner (ExplorerPanel, ClassicMenuBar, Tabs, or marked for deletion)
+- [x] **Implementation order approved** — Phase A → Phase B + B.2 → Phase C → Phase D
+- [x] **Dependencies verified** — No phase depends on future work
+- [x] **Rollback defined** — Every phase has a git-based rollback strategy
+- [x] **Validation defined** — Every phase has build + behavior validation steps
+- [x] **No unresolved ownership** — Every Home Panel feature has a designated new owner or is explicitly marked for deletion
+- [x] **No architectural questions remaining** — The Workspace/Layout report and Relocation report are approved. No need for additional analysis.
+- [x] **ExplorerPanel approach approved** — Content swap (showing projects/sessions when no SDK context) rather than restructuring Explorer
+- [x] **Controllers stay in place** — Not moved; imported directly from `pages/home/` to ExplorerPanel, then deleted with the directory in Phase D
+- [x] **Backward compatibility verified** — Legacy layout (`!newLayoutDesigns`) is also cleaned up in Phase D (LegacyHome route removed)
+- [x] **No feature flags** — No temporary flags, no compatibility layers, no duplicated UI at any point
+- [x] **Team understands**: The Home Panel is being removed entirely. Every feature is being relocated to existing components. No new UI paradigms are introduced. The Workspace layout is unchanged. The ExplorerPanel is the primary replacement host.

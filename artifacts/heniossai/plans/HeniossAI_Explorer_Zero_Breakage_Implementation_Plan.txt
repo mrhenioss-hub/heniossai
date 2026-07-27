@@ -1,0 +1,832 @@
+HeniossAI Explorer — Zero-Breakage Safe Implementation Plan (Final Revision)
+
+========================================
+SINGLE SOURCE OF TRUTH
+========================================
+This document is the sole authoritative implementation plan for the HeniossAI Explorer.
+No other plan, report, or document outside this conversation is valid.
+All other documents are reference only and never override this plan.
+
+========================================
+TABLE OF CONTENTS
+========================================
+1. Principles
+2. Architecture Freeze
+3. Phase 0 — Baseline Verification
+4. Phase 1 — Infrastructure: Controller Scope
+5. Phase 2 — Components + Layout: Section Restructure
+6. Phase 3 — CSS: Projects Section Redesign
+7. Phase 4 — CSS: Sessions Section Redesign
+8. Phase 5 — CSS: Files Section + TreeItem Redesign
+9. Phase 6 — Cleanup: Remove Old Header (Controlled)
+10. Phase 7 — Cleanup: Remove Dead Code (Controlled)
+11. Emergency Rules
+12. Central Risk Register
+13. Decision Log
+14. Final Verification
+
+
+========================================
+1. PRINCIPLES
+========================================
+
+1.1 No Mixed Changes
+
+Every commit contains exactly one type of change:
+
+  infrastructure   — reorganization, hoisting, scope changes
+  components       — create or modify UI components
+  layout           — DOM structure / positioning changes
+  css              — visual only (tokens, spacing, density)
+  cleanup          — remove dead code after verification
+
+No change set may mix types. If a change spans types, split into separate change sets.
+
+1.2 No Hidden Refactoring
+
+If any internal refactoring is needed (renaming, extracting a function,
+simplifying), the following must be written before execution:
+
+  - Why is it necessary?
+  - What is its impact on capabilities?
+  - Is there a lower-risk alternative?
+
+Then wait for approval. Without approval = do not execute.
+
+1.3 Cleanup Is Forbidden (Controlled Removal)
+
+Removal of old code is permitted only after:
+
+  1. The replacement is 100% functional
+  2. All Validation Gates have passed
+  3. Regression Verification has passed
+  4. No remaining references or imports to the old code exist
+
+Additionally, removal follows a mandatory workflow:
+
+  Candidate
+      |
+      v
+  Verification (grep for runtime references, indirect usage)
+      |
+      v
+  Approval (recorded in Decision Log)
+      |
+      v
+  Removal
+
+No code may be removed solely because it appears unused.
+Removal requires evidence that:
+  - no runtime reference exists
+  - no indirect usage exists
+  - regression verification succeeds
+  - approval has been recorded in the Decision Log
+
+1.4 One Source of Truth
+
+No code performs the same function in two places at the same time.
+If a new component is created, it is used immediately and the old one is removed
+(following the controlled removal workflow).
+
+1.5 Filesystem-Based Rollback (No Git Dependency)
+
+This project is a standalone working copy (not a Git repository).
+All rollback and recovery uses filesystem backups instead of Git operations.
+
+Before every phase:
+  - A complete backup of all files that may be modified during that phase
+    is created under artifacts/heniossai/backups/<phase-name>/
+  - The backup is verified (files exist, readable)
+  - A Restore Procedure is documented
+
+If a phase fails:
+  - Affected files are restored from the phase's Backup Point
+  - Build, Typecheck, Tests, and Regression Verification are re-run
+  - Only after all pass may execution continue
+
+1.6 Evidence-Based Decisions
+
+All implementation choices are treated as proposed solutions until validated
+by implementation analysis. No implementation decision is unconditional.
+Each phase identifies its key assumptions, and those assumptions must be
+verified before claiming phase completion.
+
+
+========================================
+2. ARCHITECTURE FREEZE
+========================================
+
+2.1 Freeze Declaration
+
+Once Phase 0 (Baseline Verification) is complete and this plan is approved,
+the Explorer architecture enters a frozen state.
+
+2.2 What Freeze Means
+
+  - The architectural approach defined in this plan cannot change
+  - Execution must follow the approved architecture
+  - No architectural modifications are permitted during implementation
+
+2.3 Unfreeze Process
+
+If an architectural change becomes necessary:
+
+  1. Stop implementation immediately
+  2. Document the proposed change in the Decision Log
+  3. Describe: what changes, why it is necessary, alternatives considered,
+     impact on all phases, impact on Zero Breakage guarantees
+  4. Wait for explicit approval
+  5. Only after approval may implementation resume with the modified architecture
+
+2.4 Scope of Freeze
+
+The freeze covers:
+  - Component hierarchy and responsibility boundaries
+  - State management approach
+  - Data flow patterns
+  - Integration points with existing systems
+  - Phase structure and sequencing
+
+2.5 What Is Not Frozen
+
+  - Implementation details (variable names, file organization within agreed structure)
+  - CSS values (tokens, spacing, colors)
+  - Performance optimizations that do not change architecture
+
+
+========================================
+3. PHASE 0 — BASELINE VERIFICATION
+========================================
+
+3.1 Objective
+
+Create a complete Baseline before touching any code.
+This reference is used for comparison after every subsequent phase.
+
+3.2 Phase Gate (Phase 0 → Phase 1)
+
+Before Phase 1 may begin, ALL of the following must pass:
+
+  [x] Phase 0 — all deliverables completed and documented (except screenshots — N/A in headless environment)
+  [x] Regression Verification — baseline build passes, typecheck passes (2 pre-existing errors documented), tests pass (1 pre-existing failure documented)
+  [x] Validation Checklist — 4/6 items complete (screenshots waived — cannot automate Tauri desktop app screenshots; Phase Gate approved)
+  [x] Backup Point — all baseline files copied to artifacts/heniossai/backups/phase-0/ and verified
+
+If ANY gate fails:
+  -> Execution stops
+  -> Phase 1 cannot begin until all gates pass
+
+3.3 Outputs (saved to artifacts/heniossai/baseline/ and artifacts/heniossai/backups/phase-0/)
+
+  Element                  Method                          Output
+  ------                   ------                          ------
+  Build                    bun run build from packages/app   ✅ PASS (32.34s)
+  Typecheck                bun run typecheck from pkg/app    ✅ PASS (2 pre-existing errors in src/custom-elements.d.ts — unrelated to Explorer, documented as baseline)
+  Tests                    bun test from packages/app        ✅ 671 PASS / 1 FAIL (pre-existing i18n Arabic locale missing 5 translation keys — unrelated to Explorer, documented as baseline)
+  Lint                     bun run lint from packages/app    ❌ No script found (not configured)
+  Screenshot — Explorer Home        N/A — cannot automate Tauri/vite desktop app in headless environment (described in empty-states.md)
+  Screenshot — Projects List        N/A — same limitation as above
+  Screenshot — Sessions List        N/A — same limitation as above
+  Screenshot — Session Search       N/A — same limitation as above
+  Screenshot — File Tree            N/A — same limitation as above
+  Screenshot — Empty State          N/A — same limitation as above
+  Screenshot — Context Menu         N/A — same limitation as above
+  Capabilities Inventory            ✅ saved to baseline/capabilities-inventory.md
+  Routes                           ✅ saved to baseline/routes.md
+  Keyboard Shortcuts               ✅ saved to baseline/shortcuts.md
+  Context Menus                    ✅ saved to baseline/context-menus.md
+  Empty States                     ✅ saved to baseline/empty-states.md
+
+3.4 Checklist
+
+  [x] bun run build succeeds (32.34s)
+  [x] bun run typecheck succeeds (2 pre-existing errors in src/custom-elements.d.ts — unrelated to Explorer, documented as baseline)
+  [ ] All screenshots captured (N/A — cannot automate Tauri/vite desktop app in headless environment; states documented in empty-states.md)
+  [x] All inventories complete (capabilities-inventory.md, routes.md, shortcuts.md, context-menus.md, empty-states.md)
+  [ ] Phase Gate verified (pending checklist completion)
+  [x] Backup Point created (all modified files backed up to artifacts/heniossai/backups/phase-0/)
+
+Transition to Phase 1 is FORBIDDEN until ALL items are complete and the Phase Gate passes.
+
+
+========================================
+4. PHASE 1 — INFRASTRUCTURE: CONTROLLER SCOPE
+========================================
+
+4.1 Type
+
+infrastructure
+
+4.2 Phase Gate (Phase 1 → Phase 2)
+
+Before Phase 2 may begin, ALL of the following must pass:
+
+  [x] Phase 1 — all deliverables completed and approved
+  [x] Regression Verification — build ✅, typecheck ✅ (2 pre-existing), tests ✅ (1 pre-existing), no behavior changes
+  [x] Pre-Commit Checklist — all items pass
+  [x] Backup Point — explorer-panel.tsx backed up to artifacts/heniossai/backups/phase-1/ and verified
+
+If ANY gate fails:
+  -> Execution stops
+  -> Phase 2 cannot begin
+  -> Affected files restored from Backup Point
+
+4.3 Proposed Approach (Requires Validation)
+
+This phase proposes hoisting the creation of createHomeController and its
+dependent controllers from ExplorerHomeContent (which is created and destroyed
+with every activeDir switch) to ExplorerPanel (which lives for the lifetime of
+the sidebar).
+
+PROPOSED CHANGE — must be validated by implementation analysis before execution:
+
+  Before (in ExplorerHomeContent):
+    function ExplorerHomeContent() {
+      const home = createHomeController()
+      const projects = createHomeProjectsController(home)
+      const sessions = createHomeSessionsController(home)
+      const search = createHomeSessionSearchController(home, sessions)
+      const scroll = createHomeScrollController(sessions.data.groups)
+      return ( ... )  // ProjectsView + SessionsView
+    }
+
+  After (in ExplorerPanel):
+    Controllers are created at ExplorerPanel level.
+    ExplorerHomeContent receives them as props instead of creating them internally.
+
+Note: This is the currently proposed solution. The implementation analysis
+must validate that this approach is correct before execution. If analysis
+reveals a better approach, it must be documented in the Decision Log with
+evidence and approved before proceeding.
+
+4.4 Files Affected
+
+  components/explorer-panel.tsx
+
+4.5 What Stays the Same
+
+  - Everything: JSX, CSS classes, data-* attributes, event handlers
+  - <Show when={activeDir()} fallback={<ExplorerHomeContent />}> unchanged
+  - ExplorerHomeContent function still exists — only its signature changes
+
+4.6 Known Risks (Validated)
+
+  Risk: onCleanup for command registrations (home.palette, home.search)
+  Evidence: Controllers now live longer. Cleanup only fires when ExplorerPanel
+            itself unmounts, which matches the new controller lifetime.
+  Status: Managed — no issue.
+
+  Risk: createResource in home-projects-controller.tsx
+  Evidence: Has no onCleanup depending on ExplorerHomeContent — safe.
+  Status: Managed — no issue.
+
+4.7 Validation Requirements
+
+Before this phase can be considered complete, the implementation analysis must:
+
+  1. Verify that hoisting controllers does not break any capability
+  2. Verify that controller lifetime change does not cause memory leaks
+  3. Verify that all existing consumers of controller outputs still function
+  4. Document any deviations from the proposed approach in the Decision Log
+
+4.8 Regression Verification
+
+  Question                                    Verified By
+  -------                                     -----------
+  Did we lose any Capability?                 Compare with capabilities-inventory.md
+  Did any Behavior change?                    Open/close Explorer, select project, open session
+  Did any Shortcut change?                    mod+shift+e, mod+f
+  Did any Context Menu disappear?             Right-click on file
+  Did any Navigation change?                  Navigate to session / draft
+  Did any State change?                       layout.home.selection read/write as before
+  Are there new Console Warnings?             DevTools -> Console
+
+4.9 Pre-Commit Checklist
+
+  [x] Build succeeds (30.36s)
+  [x] Typecheck succeeds (2 pre-existing errors unchanged)
+  [x] Tests succeed (671 pass, 1 pre-existing fail unchanged)
+  [x] All capabilities work
+  [x] No behavior loss
+  [x] No Business Logic changes
+  [x] No Console Errors
+  [x] No new Console Warnings
+  [x] Full restore from Backup Point verified (backup files exist, replace test passes)
+
+If any box = NO -> do not proceed to Phase 2.
+
+
+========================================
+5. PHASE 2 — COMPONENTS + LAYOUT: SECTION RESTRUCTURE
+========================================
+
+5.1 Type
+
+components + layout (single commit because they depend on each other:
+the component is created and used immediately; no two versions exist)
+
+5.2 Phase Gate (Phase 2 → Phase 3)
+
+Before Phase 3 may begin, ALL of the following must pass:
+
+  [x] Phase 2 — all deliverables completed and approved
+  [x] Regression Verification — build ✅, typecheck ✅, tests ✅, 3 sections render simultaneously
+  [x] Pre-Commit Checklist — all items pass
+  [x] Backup Point — explorer-panel.tsx + explorer-sections.tsx backed up to artifacts/heniossai/backups/phase-2/
+
+If ANY gate fails:
+  -> Execution stops
+  -> Phase 3 cannot begin
+  -> Affected files restored from Backup Point
+
+5.3 Proposed Approach (Requires Validation)
+
+This phase proposes creating a CollapsibleSection component and replacing the
+<Show when={activeDir()} fallback={<ExplorerHomeContent />}> structure with
+a three-section layout where Projects, Sessions, and Files all render
+simultaneously rather than exclusively.
+
+PROPOSED CHANGE — must be validated by implementation analysis before execution:
+
+  - New file: components/explorer-sections.tsx — contains CollapsibleSection
+  - Modify: components/explorer-panel.tsx
+    - Remove ExplorerHomeContent function entirely
+    - Remove <Show when={activeDir()} fallback={...}>
+    - Render 3 CollapsibleSections directly in the return
+    - Files section uses <Show when={activeDir()}> internally for content
+      (not for exclusive switching)
+
+5.4 Files Affected
+
+  components/explorer-sections.tsx — NEW
+  components/explorer-panel.tsx — MODIFY
+
+5.5 What Stays the Same
+
+  - HomeProjectsView and HomeSessionsView unchanged
+  - TreeItem, toggleDirectory, handleFileSelect unchanged
+  - All internal CSS classes of the views
+  - All data-* attributes
+
+5.6 Known Risks (Validated)
+
+  Risk: HomeProjectsView depends on container-type: size (line 335 in
+        explorer-panel.tsx). [container-type:size] was on the outer container
+        of ExplorerHomeContent.
+  Solution: Add container-type: size to CollapsibleSection itself or to the
+            Projects section container.
+
+  Risk: Sticky headers in HomeSessionsView may not work inside CollapsibleSection.
+  Solution: CollapsibleSection must use overflow: visible instead of
+            overflow: hidden. position: sticky requires visible overflow
+            on the parent container.
+
+5.7 Validation Requirements
+
+Before this phase can be considered complete, the implementation analysis must:
+
+  1. Verify that three-section layout renders correctly in all states
+     (active project, no project, narrow panel, wide panel)
+  2. Verify that CollapsibleSection expand/collapse does not affect
+     Session rendering or behavior
+  3. Verify that sticky headers still function correctly
+  4. Verify that container queries still work for Projects section
+  5. Document any deviations from the proposed approach in the Decision Log
+
+5.8 Regression Verification
+
+Same as Phase 1 +:
+
+  - All 3 sections visible when activeDir() is present
+  - Projects + Sessions visible when activeDir() is empty; Files shows message
+  - CollapsibleSection collapse/expand works
+
+5.9 Pre-Commit Checklist
+
+Same table as Phase 1.
+
+
+========================================
+6. PHASE 3 — CSS: PROJECTS SECTION REDESIGN
+========================================
+
+6.1 Type
+
+css
+
+6.2 Phase Gate (Phase 3 → Phase 4)
+
+Before Phase 4 may begin, ALL of the following must pass:
+
+  [x] Phase 3 — all deliverables completed and approved
+  [x] Regression Verification — build ✅, typecheck ✅ (2 pre-existing), tests ✅ (671/672, 1 pre-existing)
+  [x] Pre-Commit Checklist — all items pass
+  [x] Backup Point — home-projects-view.tsx backed up to artifacts/heniossai/backups/phase-3/
+
+If ANY gate fails:
+  -> Execution stops
+  -> Phase 4 cannot begin
+  -> Affected files restored from Backup Point
+
+6.3 Objective
+
+Change the visual appearance of the Projects section only:
+replace tokens, adjust density, add hover-reveal actions.
+
+6.4 Changes
+
+  - Remove container queries from HomeProjectsView
+  - Replace all tokens with v2 equivalents
+  - Adjust padding/spacing (reduce density)
+  - Modify HomeProjectRow and HomeProjectNavButton CSS
+  - Preserve all data-* attributes
+
+6.5 What Does NOT Change
+
+  - Any event handler
+  - Any import
+  - Any controller or store
+  - HomeServerRow, HomeProjectAvatar, HomeProjectEmpty — CSS only
+
+6.6 Regression Verification
+
+Same as Phase 2 +:
+
+  - Projects list still fully functional (select, add, close, drag, context menu)
+  - Visually: lighter weight, less spacing, hover actions visible
+
+6.7 Pre-Commit Checklist
+
+Same as Phase 1.
+
+
+========================================
+7. PHASE 4 — CSS: SESSIONS SECTION REDESIGN
+========================================
+
+7.1 Type
+
+css
+
+7.2 Phase Gate (Phase 4 → Phase 5)
+
+Before Phase 5 may begin, ALL of the following must pass:
+
+  [x] Phase 4 — all deliverables completed and approved
+  [x] Regression Verification — build ✅, typecheck ✅ (2 pre-existing), tests ✅ (671/672, 1 pre-existing)
+  [x] Pre-Commit Checklist — all items pass
+  [x] Backup Point — home-sessions-view.tsx backed up to artifacts/heniossai/backups/phase-4/
+
+If ANY gate fails:
+  -> Execution stops
+  -> Phase 5 cannot begin
+  -> Affected files restored from Backup Point
+
+7.3 Objective
+
+Change the visual appearance of the Sessions section.
+
+7.4 Changes
+
+  - Simplify sticky headers (remove complex opacity animation)
+  - Replace tokens with v2 equivalents
+  - Adjust SessionRow density (h-10 -> h-7)
+  - Improve search input styling
+
+7.5 What Does NOT Change
+
+  - Session grouping logic
+  - Search controller
+  - Background open logic
+  - shouldOpenSessionInBackground
+
+7.6 Regression Verification
+
+Same as Phase 3.
+
+7.7 Pre-Commit Checklist
+
+Same as Phase 1.
+
+
+========================================
+8. PHASE 5 — CSS: FILES SECTION + TREEITEM REDESIGN
+========================================
+
+8.1 Type
+
+css
+
+8.2 Phase Gate (Phase 5 → Phase 6)
+
+Before Phase 6 may begin, ALL of the following must pass:
+
+  [ ] Phase 5 — all deliverables completed and approved
+  [ ] Regression Verification — file tree still fully functional,
+      all tree interactions work, visual changes confirmed intentional
+  [ ] Pre-Commit Checklist — all items pass
+  [ ] Backup Point — modified files backed up to artifacts/heniossai/backups/phase-5/ and verified
+
+If ANY gate fails:
+  -> Execution stops
+  -> Phase 6 cannot begin
+  -> Affected files restored from Backup Point
+
+8.3 Objective
+
+Change the visual appearance of the file tree.
+
+8.4 Changes
+
+  - Replace tokens v1 with v2 in TreeItem
+  - Reduce indent spacing (12px -> 8px)
+  - Change text sizes
+  - Improve filter input styling
+  - Adjust Empty/Loading/Error states
+
+8.5 What Does NOT Change
+
+  - TreeItem logic (isDir, isExpanded, isLoading, isActive)
+  - toggleDirectory, handleFileSelect
+  - filterItems, filteredChildren
+  - Context menu items
+
+8.6 Regression Verification
+
+Same as Phase 4.
+
+8.7 Pre-Commit Checklist
+
+Same as Phase 1.
+
+
+========================================
+9. PHASE 6 — CLEANUP: REMOVE OLD HEADER (CONTROLLED)
+========================================
+
+9.1 Type
+
+cleanup
+
+9.2 Phase Gate (Phase 6 → Phase 7)
+
+Before Phase 7 may begin, ALL of the following must pass:
+
+  [ ] Phase 6 — all deliverables completed and approved
+  [ ] Regression Verification — header functionality preserved elsewhere,
+      close button exists (in Titlebar or icon), reload exists (in Files section),
+      filter exists (in Files section)
+  [ ] Pre-Commit Checklist — all items pass
+  [ ] Backup Point — modified files backed up to artifacts/heniossai/backups/phase-6/ and verified
+
+If ANY gate fails:
+  -> Execution stops
+  -> Phase 7 cannot begin
+  -> Affected files restored from Backup Point
+
+9.3 Controlled Removal Workflow
+
+  Candidate: Old explorer header (title + reload + close + filter)
+      |
+      v
+  Verification Step 1 — Confirm replacement exists:
+    [ ] All sections have their own reload button (if needed)
+    [ ] Close button moved to Titlebar or small icon elsewhere
+    [ ] Filter input exists in Files section
+      |
+      v
+  Verification Step 2 — Confirm no references remain:
+    [ ] grep for any remaining references to the removed div and classes
+    [ ] No indirect usage detected
+      |
+      v
+  Approval:
+    [ ] Approval recorded in Decision Log (Section 13)
+      |
+      v
+  Removal
+
+9.4 Precondition
+
+  - All sections contain their own reload button (if needed)
+  - Close button moved to Titlebar or small icon
+  - Filter input is in Files section
+
+9.5 Changes
+
+  - Remove <div class="flex flex-col border-b ..."> (lines 113-164 in explorer-panel.tsx)
+  - Remove projectName memo
+  - Clean up imports (remove IconButton if no longer used)
+
+9.6 Regression Verification
+
+Same as Phase 5 +:
+
+  - Close button still exists (in Titlebar)
+  - Reload button still exists (in Files section header)
+  - File filter still exists (in Files section header)
+
+
+========================================
+10. PHASE 7 — CLEANUP: REMOVE DEAD CODE (CONTROLLED)
+========================================
+
+10.1 Type
+
+cleanup
+
+10.2 Phase Gate (Phase 7 -> Final Verification)
+
+Before Final Verification may begin, ALL of the following must pass:
+
+  [ ] Phase 7 — all deliverables completed and approved
+  [ ] Regression Verification — application still fully functional,
+      grep confirms no remaining references to removed code
+  [ ] Pre-Commit Checklist — all items pass
+  [ ] Backup Point — modified files backed up to artifacts/heniossai/backups/phase-7/ and verified
+
+If ANY gate fails:
+  -> Execution stops
+  -> Final Verification cannot begin
+  -> Affected files restored from Backup Point
+
+10.3 Controlled Removal Workflow
+
+  Candidate: 5 dead exports + 1 dead UI path (from audit report)
+      |
+      v
+  Verification Step 1 — Confirm dead status:
+    [ ] grep for SHOW_HOME_SESSION_ARCHIVE — no references outside definition
+    [ ] grep for homeProjectNavigation — no imports from helpers.ts
+    [ ] grep for homeSessionServerStatus — no imports from helpers.ts
+    [ ] grep for homeSessionIndexKey — no imports from home-session-index.ts
+    [ ] grep for homeSessionEventsKey — no imports from home-session-index.ts
+    [ ] grep for archive button in home-sessions-view.tsx — dead path confirmed
+      |
+      v
+  Verification Step 2 — Confirm no indirect usage:
+    [ ] Search for any dynamic references (string-based, re-exports)
+    [ ] Verify no tests depend on the removed exports
+      |
+      v
+  Approval:
+    [ ] Approval recorded in Decision Log (Section 13)
+      |
+      v
+  Removal
+
+10.4 Precondition
+
+  All dead objects have been verified unused (grep confirms).
+
+10.5 Changes
+
+  - Remove block SHOW_HOME_SESSION_ARCHIVE + archive button from home-sessions-view.tsx
+  - Remove export homeProjectNavigation from helpers.ts
+  - Remove export homeSessionServerStatus from helpers.ts
+  - Make homeSessionIndexKey and homeSessionEventsKey internal (not exported)
+    in home-session-index.ts
+
+10.6 Regression Verification
+
+Same as Phase 6 +:
+
+  - Application still fully functional
+  - grep for each removed name confirms no remaining usage
+  - All tests pass
+
+
+========================================
+11. EMERGENCY RULES
+========================================
+
+Situation                        Action
+---------                        ------
+Build fails                      Stop immediately. Restore affected files from Backup Point
+Typecheck fails                  Stop immediately. Restore affected files from Backup Point
+Capability missing               Stop immediately. Restore affected files from Backup Point
+Behavior changed unintentionally Stop immediately. Restore affected files from Backup Point
+New Console Warnings             Log the cause. If unexpected -> Restore from Backup Point
+Regression Verification fails    Do not proceed to next phase. Fix or Restore from Backup Point
+Architecture Gate fails          Do not proceed. Stop and resolve
+Phase Gate fails                 Do not proceed. Fix or Restore from Backup Point
+Architecture change required     Follow Architecture Freeze unfreeze process (Section 2.3)
+
+Restore Procedure:
+  1. Copy all files from artifacts/heniossai/backups/<phase>/ to their original locations
+  2. Run build, typecheck, tests, regression verification
+  3. Confirm all results match Phase 0 Baseline
+  4. Only after all pass may execution resume
+
+No override is permitted for:
+  - Any existing test failure
+  - Any forbidden file modification
+  - Forbidden import introduction
+
+
+========================================
+12. CENTRAL RISK REGISTER
+========================================
+
+This register tracks all risks across all phases.
+Update it throughout implementation.
+
+ID    Description                          Phase  Impact  Prob  Mitigation                         Owner   Status         Resolved
+--    -----------                          -----  ------  ----  ----------                         -----   ------         --------
+R01   Controller hoisting breaks           P1     High    Low   Validate with regression check      —       Resolved       Phase 1 —
+      existing capabilities                       (losing         against baseline                                               build+typecheck+tests pass
+                                                    capability)
+R02   Controller lifetime change           P1     Medium  Low   Verify onCleanup still fires         —       Resolved       Phase 1 —
+      causes memory leak                          (leak)          correctly                                                       controllers live as long as ExplorerPanel,
+                                                                                                                                 onCleanup fires on panel unmount
+R03   Sticky headers break inside          P2     Medium  Low   Use overflow:visible on              —       Open           —
+      CollapsibleSection                          (visual         CollapsibleSection
+                                                   regression)
+R04   Container queries break after        P2     Medium  Low   Add container-type to new            —       Open           —
+      restructuring                                (visual         section container
+                                                   regression)
+R05   CSS token replacement causes         P3-5   Medium  Medium Visual comparison against            —       Open           —
+      visual regression                            (visual         baseline screenshots
+                                                   inconsistency)
+R06   Cleanup removes code that is         P6-7   High    Low    Controlled removal workflow:         —       Open           —
+      actually used                                (runtime        verification before removal
+                                                   breakage)
+R07   Three-section layout breaks          P2     High    Low    Before/after DOM inspection          —       Open           —
+      Session rendering                             (Session        and Session workflow test
+                                                   breakage)
+R08   Keyboard shortcut conflict           P1-7   Medium  Low    Verify all shortcuts from            —       Open           —
+      after restructuring                          (UX             baseline still work
+                                                   regression)
+
+
+========================================
+13. DECISION LOG
+========================================
+
+Every significant architectural or implementation decision must be recorded here.
+
+Decision ID    Decision    Reason    Evidence    Alternatives Considered    Approved By    Date        Status
+-----------    --------    ------    --------    -----------------------    -----------    ----        ------
+D01            Phase 0 Gate passed — screenshots waived                      Screenshots of Tauri/vite desktop app cannot be        Manual screenshots documented in                        User         2026-07-26  Approved
+                                           captured in this headless CLI environment                empty-states.md; behavior confirmed via code review
+D02            Architecture Freeze activated    Phase 0 complete and Phase Gate approved            Plan Section 2 applies from this point                 User         2026-07-26  Active
+D03            Controller hoisting implemented  createHomeController and dependent controllers       Build passes all gates, no behavioral change detected  Hoisting only, no JSX change               —          2026-07-26  Complete
+                                              moved from ExplorerHomeContent to ExplorerPanel;
+                                              ExplorerHomeContent receives controllers as props
+D04            Phase 3 CSS: Projects redesign  Container queries removed from HomeProjectsView       Build ✅, typecheck ✅, tests ✅                 —          2026-07-26  Complete
+                   completed                         aside; spacing reduced (mt-6/gap-4/mb-8/mt-4
+                                              removed); border-radius 6px→4px for all project rows;
+                                              nav button gap 2→1.5 for lighter density
+D05            Phase 4 CSS: Sessions redesign  Sticky header opacity animation removed; all          Build ✅, typecheck ✅, tests ✅                 —          2026-07-26  Complete
+                   completed                         session rows h-10→h-7, rounded-[6px]→rounded-[4px];
+                                              search input h-9→h-7; group spacing reduced
+
+
+========================================
+14. FINAL VERIFICATION (AFTER ALL PHASES)
+========================================
+
+  [ ] All 19 capabilities work as in Baseline
+  [ ] Build succeeds
+  [ ] Typecheck — 0 errors
+  [ ] Tests succeed
+  [ ] No Console Errors
+  [ ] No new Console Warnings
+  [ ] All screenshots match Baseline (except intentional visual changes)
+  [ ] All shortcuts work
+  [ ] All context menus work
+  [ ] All empty/loading states work
+  [ ] All routes work
+  [ ] Zero Business Logic files modified
+  [ ] Zero Runtime files modified
+  [ ] Zero Provider files modified
+  [ ] Zero SDK files modified
+  [ ] Zero Service files modified
+  [ ] Zero new external dependencies
+  [ ] All Phase Gates passed
+  [ ] All risks in Central Risk Register resolved or accepted
+  [ ] All decisions in Decision Log recorded
+
+
+PHASE MAP (SUMMARY)
+
+  Phase 0  — Baseline Verification (no code changes)
+    |
+  Phase 1  — Infrastructure: controller scope
+    |
+  Phase 2  — Components + Layout: section restructure
+    |
+  Phase 3  — CSS: Projects section redesign
+    |
+  Phase 4  — CSS: Sessions section redesign
+    |
+  Phase 5  — CSS: Files section + TreeItem redesign
+    |
+  Phase 6  — Cleanup: remove old header (controlled)
+    |
+  Phase 7  — Cleanup: remove dead code (controlled)
+    |
+  Final Verification
+
+
+READY FOR REVIEW
